@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>叮办 - 让提醒跨App追着你跑</title>
+	<script src="script1.js"></script>
+	<script src="script2.js"></script> 
+	<link rel="icon" href="favicon.ico" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <!-- <script src="https://unpkg.com/lucide@latest"></script> -->
+	<link rel="stylesheet" href="style1.css" />
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"> -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        accent: {
+                            blue: '#3b82f6',
+                            cyan: '#06b6d4',
+                            rose: '#f43f5e',
+                            gold: '#facc15',
+                        }
+                    },
+                    boxShadow: {
+                        soft: '0 24px 60px -24px rgba(15, 23, 42, 0.18)',
+                        warm: '0 24px 50px -24px rgba(249, 115, 22, 0.35)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+		/* 弹窗内滚动条美化 */
+		#apiModalContent ::-webkit-scrollbar,
+		#apiDocContent ::-webkit-scrollbar {
+		    width: 6px;
+		    height: 6px;
+		}
+		#apiModalContent ::-webkit-scrollbar-track,
+		#apiDocContent ::-webkit-scrollbar-track {
+		    background: transparent;
+		}
+		#apiModalContent ::-webkit-scrollbar-thumb,
+		#apiDocContent ::-webkit-scrollbar-thumb {
+		    background: rgba(156, 163, 175, 0.4);
+		    border-radius: 999px;
+		}
+		#apiModalContent ::-webkit-scrollbar-thumb:hover,
+		#apiDocContent ::-webkit-scrollbar-thumb:hover {
+		    background: rgba(156, 163, 175, 0.6);
+		}
+		
+		/* 渠道按钮选中状态动画 */
+		#channelGrid button {
+		    transition: all 0.2s ease;
+		}
+		#channelGrid button:active {
+		    transform: scale(0.95);
+		}
+		
+		/* 代码块样式 */
+		pre {
+		    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+		    line-height: 1.5;
+		}
+        .feature-card,
+        .channel-card,
+        .hero-float {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover,
+        .channel-card:hover,
+        .hero-float:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -15px rgba(249, 115, 22, 0.28);
+        }
+        .blob {
+            position: absolute;
+            filter: blur(90px);
+            opacity: 0.42;
+            animation: float 8s ease-in-out infinite;
+        }
+        .grid-pattern {
+            background-image: radial-gradient(circle at 1px 1px, rgba(249, 115, 22, 0.16) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .hero-panel {
+            background:
+                radial-gradient(circle at top left, rgba(255, 237, 213, 0.95), transparent 40%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 250, 245, 0.92) 100%);
+        }
+        .dark .hero-panel {
+            background:
+                radial-gradient(circle at top left, rgba(249, 115, 22, 0.22), transparent 35%),
+                linear-gradient(180deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+        }
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%);
+        }
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.74);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+        }
+        .dark .hero-stat {
+            background: rgba(17, 24, 39, 0.72);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .channel-thumb {
+            width: 3.5rem;
+            height: 3.5rem;
+            margin: 0 auto 0.75rem;
+            border-radius: 1rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(249, 250, 251, 0.92) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 24px -16px rgba(15, 23, 42, 0.28);
+        }
+        .dark .channel-thumb {
+            background: linear-gradient(180deg, rgba(51, 65, 85, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 24px -16px rgba(15, 23, 42, 0.5);
+        }
+        .channel-thumb img {
+            width: 2.4rem;
+            height: 2.4rem;
+            object-fit: contain;
+        }
+        .channel-card {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .channel-card {
+            border-color: rgba(71, 85, 105, 0.6);
+        }
+    </style>
+</head>
+<body id="top" class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <nav class="fixed w-full z-50 glass border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-lg ring-1 ring-brand-100 dark:ring-gray-700">
+                        <img src="img/dotnet_bot.png" alt="叮办 Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight">叮办</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">核心功能</a>
+                    <a href="#channels" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">通知渠道</a>
+                    <a href="#pricing" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">会员方案</a>
+                    <a href="#api" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">开发者API</a>
+					<button onclick="openApiModal()" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium flex items-center gap-1">
+					    <i data-lucide="terminal" class="w-4 h-4"></i>
+					    API调试
+					</button>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换深色模式">
+                        <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+                    </button>
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="hidden sm:inline-flex items-center px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-brand-500/30">
+                        立即体验-Web端
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <div class="absolute inset-0 gradient-bg"></div>
+        <div class="absolute inset-0 grid-pattern opacity-30"></div>
+        <div class="blob w-96 h-96 bg-brand-300 dark:bg-brand-700 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="blob w-80 h-80 bg-accent-blue/25 rounded-full bottom-0 right-0 translate-x-1/3 translate-y-1/3" style="animation-delay: -2s;"></div>
+        <div class="blob w-64 h-64 bg-accent-cyan/30 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style="animation-delay: -4s;"></div>
+
+        <div class="mx-auto w-full max-w-[1280px] px-6 lg:px-8">
+            <div class="hero-panel relative overflow-hidden rounded-[2.5rem] border border-white/70 dark:border-gray-700/80 shadow-[0_32px_80px_-32px_rgba(249,115,22,0.45)]">
+                <div class="absolute inset-y-0 right-0 hidden lg:block w-1/2 bg-gradient-to-l from-white/55 to-transparent dark:from-gray-800/10"></div>
+                <div class="grid lg:grid-cols-[1.15fr_0.9fr] gap-10 lg:gap-14 items-center px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/85 dark:bg-gray-800/80 backdrop-blur-sm border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-sm font-semibold mb-6 shadow-sm">
+                            <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
+                            短注意·精准触发
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
+                            让提醒更贴心，
+                            <br class="hidden sm:block">
+                            让协作更高效
+                        </h1>
+                        <p class="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
+                            叮办把 <span class="font-semibold text-brand-600 dark:text-brand-400">跨平台待办</span>、
+                            <span class="font-semibold text-gray-900 dark:text-white">17+ 聚合推送</span> 和强提醒体验整合到一起，
+                            让重要事项真正做到“跨App追着你跑”。
+                        </p>
+
+                        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                            <a href="http://8.137.155.15:5659/directlink/star/dingbanwindows.zip" target="_blank" class="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-full shadow-xl hover:shadow-2xl hover:shadow-brand-500/40 transform hover:-translate-y-1 transition-all duration-300">
+                                <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+                                Windows / <span style="color:lightgray"> macOS</span>
+                            </a>
+                            <a href="http://8.137.155.15:5659/directlink/star/dingban.apk" target="_blank" class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-full hover:border-brand-400 dark:hover:border-brand-500 hover:text-brand-600 dark:hover:text-brand-400 transition-all duration-300">
+                                <i data-lucide="smartphone" class="w-5 h-5 mr-2"></i>
+                                Android / <span style="color:lightgray"> IOS</span>
+                            </a>
+                        </div>
+
+                        <div class="mt-8 grid gap-3 sm:grid-cols-3">
+                            <div class="hero-stat rounded-2xl px-4 py-3">
+                                <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 text-brand-500"></i>
+                                    三端实时同步
+                                </div>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">PC、移动、Web 一处更新全端同步</p>
+                            </div>
+                            <div class="hero-stat rounded-2xl px-4 py-3">
+                                <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
+                                    <i data-lucide="bell-ring" class="w-4 h-4 mr-2 text-brand-500"></i>
+                                    强提醒触达
+                                </div>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">弹窗、锁屏、振动、渠道通知同时覆盖</p>
+                            </div>
+                            <div class="hero-stat rounded-2xl px-4 py-3">
+                                <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
+                                    <i data-lucide="users" class="w-4 h-4 mr-2 text-brand-500"></i>
+                                    团队共享提醒
+                                </div>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">多人协作仍保持任务边界清晰</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10">
+                        <div class="relative rounded-[2rem] bg-white/90 dark:bg-gray-900/80 border border-white/80 dark:border-gray-700 p-6 sm:p-8 shadow-2xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-brand-600 dark:text-brand-400">PC · 移动 · Web</p>
+                                    <h2 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">无缝协同的提醒主控台</h2>
+                                </div>
+                                <div class="hidden sm:flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-rose-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex items-center justify-center gap-4 text-brand-500">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-50 dark:bg-brand-900/30">
+                                    <i data-lucide="laptop" class="w-10 h-10"></i>
+                                </div>
+                                <i data-lucide="plus" class="w-6 h-6 text-brand-300 dark:text-brand-600"></i>
+                                <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-50 dark:bg-brand-900/30">
+                                    <i data-lucide="smartphone" class="w-10 h-10"></i>
+                                </div>
+                            </div>
+
+                            <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                                手机、电脑、网页实时同步，最小化或锁屏也不错过提醒。
+                            </p>
+
+                            <div class="mt-6 flex flex-wrap justify-center gap-3">
+                                <span class="inline-flex items-center rounded-full bg-brand-50 dark:bg-brand-900/30 px-4 py-2 text-sm font-medium text-brand-700 dark:text-brand-300">
+                                    <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
+                                    每天
+                                </span>
+                                <span class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300">
+                                    <i data-lucide="calendar-days" class="w-4 h-4 mr-2"></i>
+                                    每周
+                                </span>
+                                <span class="inline-flex items-center rounded-full bg-purple-50 dark:bg-purple-900/30 px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300">
+                                    <i data-lucide="calendar-days" class="w-4 h-4 mr-2"></i>
+                                    每月
+                                </span>
+                                <span class="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                                    自定义分钟
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="hero-float absolute -top-4 right-4 hidden rounded-2xl bg-white/90 dark:bg-gray-900/90 px-4 py-3 shadow-xl border border-white/70 dark:border-gray-700 md:block">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">聚合能力</p>
+                            <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white">17+ 通知渠道</p>
+                        </div>
+                     <!--   <div class="hero-float absolute -bottom-5 left-4 hidden rounded-2xl bg-gray-900 text-white px-4 py-3 shadow-xl md:block">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">开发者 API</p>
+                            <p class="mt-1 text-lg font-bold">600 次 / 分钟</p>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="w-6 h-6 text-gray-400"></i>
+        </div>
+    </section>
+
+    <section id="features" class="py-20 bg-white dark:bg-gray-900 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">核心亮点</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    从个人日程到团队协作，从单次提醒到循环任务，叮办提供完整的强提醒与待办管理体验。
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-200 dark:bg-brand-900/30 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-brand-100 dark:bg-brand-900/50 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6">
+                            <i data-lucide="repeat" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">灵活循环提醒</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            支持每天、每周、每月固定日期循环，也可设置随机时间范围，完美适配久坐、喝水等习惯场景。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-accent-blue/20 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
+                            <i data-lucide="calendar-days" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">多维度视图</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            月度总览、时间轴、周视图、日视图自由切换，侧边栏快速跳转，待办规划一目了然。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-200/40 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-cyan-100 dark:bg-cyan-900/50 rounded-2xl flex items-center justify-center text-cyan-600 dark:text-cyan-400 mb-6">
+                            <i data-lucide="smartphone" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">全平台同步</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Windows、macOS、Android、iOS、Web 多端实时同步，断网时也可借助本地缓存继续查看任务。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-rose-200/40 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-rose-100 dark:bg-rose-900/50 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 mb-6">
+                            <i data-lucide="message-circle" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">社区互动</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            内置社区板块，支持浏览、点赞、评论、收藏。Pro 用户还可发帖与管理个人内容。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-200/40 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/50 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400 mb-6">
+                            <i data-lucide="users" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">团队共享</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            创建团队共享分组，组内任务全员同步提醒，成员只操作自己的待办，协作边界清晰。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/50 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6">
+                            <i data-lucide="sticky-note" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">桌面便签</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            支持桌面悬浮置顶便签，Pro 用户可上传图片，重要灵感与资料都能随手记录。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="channels" class="py-20 bg-gray-50 dark:bg-gray-800/50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">17+ 聚合通知渠道</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-5">
+                    无论您习惯使用哪种工具，叮办都能触达
+                </p>
+            </div>
+
+            <div class="mb-12">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center justify-center">
+                    <span class="bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 px-3 py-1 rounded-full text-sm mr-3">常用渠道</span>
+                    全员可用
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_dingtalk.webp" alt="钉钉群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">钉钉群机器人</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_dingtalk_inner.webp" alt="钉钉企业机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">钉钉企业</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_wework_agent.webp" alt="企业微信群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">企业微信</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_feishu.webp" alt="飞书群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">飞书</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_email.webp" alt="QQ邮箱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">QQ邮箱</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_sms.webp" alt="手机短信"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">手机短信</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_bark.webp" alt="Bark"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Bark</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_webhook.webp" alt="Webhook"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Webhook</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_serverchan.webp" alt="Server酱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Server酱</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_qmsg.webp" alt="QMsg酱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">QMsg酱</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_pushplus.webp" alt="PushPlus"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">PushPlus</span>
+                    </div>
+                    <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
+                        <div class="channel-thumb"><img src="img/icon_gotify.webp" alt="Gotify"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Gotify</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center justify-center">
+                    <span class="bg-gradient-to-r from-brand-400 to-brand-600 text-white px-3 py-1 rounded-full text-sm mr-3 shadow-lg">Pro专属</span>
+                    高级通知渠道
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                    <div class="channel-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute top-2 right-2">
+                            <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
+                        </div>
+                        <div class="channel-thumb"><img src="img/icon_telegram.webp" alt="Telegram机器人"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">Telegram机器人</span>
+                    </div>
+                    <div class="channel-card bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute top-2 right-2">
+                            <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
+                        </div>
+                        <div class="channel-thumb"><img src="img/icon_discord.webp" alt="Discord机器人"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">Discord机器人</span>
+                    </div>
+                    <div class="channel-card bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute top-2 right-2">
+                            <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
+                        </div>
+                        <div class="channel-thumb"><img src="img/icon_socket.webp" alt="Socket MQTT TCP"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">Socket MQTT/TCP</span>
+                    </div>
+                    <div class="channel-card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute top-2 right-2">
+                            <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
+                        </div>
+                        <div class="channel-thumb"><img src="img/icon_url_scheme.webp" alt="短信应用转发"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">短信/应用转发</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-20 bg-white dark:bg-gray-900">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">选择适合您的方案</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400">
+                    从个人使用到团队协作，从基础提醒到专业开发。
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-200 dark:border-gray-700">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">普通用户</h3>
+                        <p class="text-gray-600 dark:text-gray-400">适合个人日常使用</p>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">免费</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300">单日创建待办上限 <strong>10个</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300">团队共享上限 <strong>2个</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300">桌面悬浮便签笔记</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300">社区交流版块互动</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300"><strong>17+</strong> 常用通知渠道</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-700 dark:text-gray-300">每日 <strong>1000条</strong> 渠道通知</span>
+                        </li>
+                    </ul>
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors">
+                        免费开始
+                    </a>
+                </div>
+
+                <div class="relative bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/20 dark:to-gray-800 rounded-3xl p-8 border-2 border-brand-500 shadow-xl shadow-brand-500/10">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-gradient-to-r from-brand-500 to-brand-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                            推荐
+                        </span>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pro会员</h3>
+                        <p class="text-gray-600 dark:text-gray-400">专业用户与开发者的选择</p>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">订阅解锁</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">待办创建 <strong>无上限</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">团队创建 <strong>无上限</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">便签支持 <strong>图片上传</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">社区 <strong>发帖权限</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">解锁 <strong>全部高级渠道</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-gray-900 dark:text-white font-medium">每日 <strong>10000条</strong> 通知调度</span>
+                        </li>
+                        <li class="flex items-start bg-brand-100 dark:bg-brand-900/30 p-2 rounded-lg -mx-2">
+                            <i data-lucide="code" class="w-5 h-5 text-brand-600 dark:text-brand-400 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span class="text-brand-900 dark:text-brand-300 font-bold">开发者API接口调用权限</span>
+                        </li>
+                    </ul>
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all transform hover:-translate-y-0.5">
+                        升级Pro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="api" class="py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="overflow-hidden rounded-[2.4rem] bg-slate-950 text-white shadow-soft">
+                <div class="grid gap-10 px-6 py-10 md:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-14 lg:py-14">
+                    <div>
+                        <div class="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-orange-300">开发者 API</div>
+                        <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl">一套接口，把提醒能力嵌进你的业务流</h2>
+                        <p class="mt-5 text-base leading-8 text-slate-300">
+                            开发者 API 的叙述更聚焦到实际场景价值：运维告警、内部审批、排班通知、活动提醒都能直接调用叮办的聚合通知渠道。
+                        </p>
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <i data-lucide="zap" class="h-5 w-5 text-orange-300"></i>
+                                <span class="text-sm text-slate-200">单用户最高支持 600 次/分钟调用频率</span>
+                            </div>
+                            <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <i data-lucide="shield-check" class="h-5 w-5 text-orange-300"></i>
+                                <span class="text-sm text-slate-200">Token 认证隔离用户权限，接入更安全</span>
+                            </div>
+                            <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <i data-lucide="workflow" class="h-5 w-5 text-orange-300"></i>
+                                <span class="text-sm text-slate-200">支持 GET / POST，多渠道联合分发</span>
+                            </div>
+							<button onclick="openApiModal()" class="text-gray-100 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium flex items-center gap-1">
+												    <i data-lucide="terminal" class="w-4 h-4"></i>
+												    API调试
+							</button>
+                        </div>
+                    </div>
+                    <div class="rounded-[2rem] border border-white/10 bg-slate-900 p-6 shadow-2xl">
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="h-3 w-3 rounded-full bg-red-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-yellow-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-green-400"></span>
+                            <span class="ml-3 text-xs text-slate-500">api-example.js</span>
+                        </div>
+<pre class="overflow-x-auto text-sm leading-7 text-slate-200"><code>// 使用叮办 API 聚合发送通知
+const response = await fetch('/api/User/notify', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    title: '系统告警',
+    description: '服务器 CPU 使用率超过 90%',
+    channels: ['wework_robot', 'dingtalk_bot', 'telegram']
+  })
+});
+
+const result = await response.json();</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-24 pt-10">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div class="overflow-hidden rounded-[2.4rem] bg-gradient-to-r from-brand-500 via-orange-500 to-amber-400 px-8 py-12 text-center text-white shadow-warm md:px-12">
+                <div class="mx-auto max-w-3xl">
+                    <div class="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-orange-50">开始体验</div>
+                    <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl">不再错过任何重要事项</h2>
+                    <p class="mt-5 text-lg leading-8 text-orange-50/90">
+                        从个人提醒到团队协作，从聚合通知到开发者 API，叮办把所有重要提醒集中在一个更可靠的触达中心。
+                    </p>
+                    <div class="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                        <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-brand-600 shadow-lg transition hover:-translate-y-1">
+                            <i data-lucide="external-link" class="mr-2 h-5 w-5"></i>
+                            访问 Web 端
+                        </a>
+                        <a href="#top" class="inline-flex items-center justify-center rounded-full border border-white/30 px-8 py-4 text-base font-semibold text-white transition hover:bg-white/10">
+                            <i data-lucide="arrow-up" class="mr-2 h-5 w-5"></i>
+                            回到顶部 下载客户端
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-orange-100 bg-white/80 py-10 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 md:flex-row lg:px-8">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-brand-100">
+                        <img src="img/dotnet_bot.png" alt="叮办 Logo" class="h-full w-full object-cover">
+                    </div>
+                    <div>
+                        <div class="text-lg font-black">叮办</div>
+                        <div class="text-sm text-gray-500">让提醒跨App追着你跑</div>
+                    </div>
+                </div>
+                <p class="mt-4 max-w-md text-sm leading-7 text-gray-600">让提醒更贴心，协作更高效。</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                <div>Windows · macOS · Android · iOS · Web</div>
+                <div class="mt-2">© 2026 叮办 All rights reserved.</div>
+				 <div class="mt-2"><span style="font-size: 1.5rem;">✉ </span> ️2424379490@qq.com</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.feature-card, .channel-card').forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = `opacity 0.6s ease ${index * 0.05}s, transform 0.6s ease ${index * 0.05}s`;
+            observer.observe(el);
+        });
+    </script>
+	<!-- API 调试与说明弹窗 -->
+	<div id="apiModal" class="fixed inset-0 z-[100] hidden">
+	    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity opacity-0" id="apiModalBackdrop" onclick="closeApiModal()"></div>
+	    
+	    <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+	        <div id="apiModalContent" class="pointer-events-auto w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[2rem] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 flex flex-col">
+	            
+	            <!-- 头部 -->
+	            <div class="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-brand-50 to-orange-50 dark:from-brand-900/20 dark:to-gray-800">
+	                <div class="flex items-center gap-3">
+	                    <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white">
+	                        <i data-lucide="code-2" class="w-5 h-5"></i>
+	                    </div>
+	                    <div>
+	                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">API 调试工具</h3>
+	                        <p class="text-xs text-gray-500 dark:text-gray-400">在线测试 · 自动获取Token · 可视化选择渠道</p>
+	                    </div>
+	                </div>
+	                <div class="flex items-center gap-2">
+	                    <button onclick="resetApiForm()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors" title="重置">
+	                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+	                    </button>
+	                    <button onclick="closeApiModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+	                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+	                    </button>
+	                </div>
+	            </div>
+	
+	            <!-- 主体内容：左右分栏 -->
+	            <div class="flex-1 overflow-hidden flex flex-col lg:flex-row">
+	                
+	                <!-- 左侧：调试表单 -->
+	                <div class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800">
+	                    
+	                    <!-- 步骤1：登录获取Token -->
+	                    <div class="space-y-3">
+	                        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+	                            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">1</span>
+	                            获取 Token
+	                            <span class="text-xs font-normal text-gray-500 ml-auto">POST /api/Auth/login</span>
+	                        </div>
+	                        <div class="grid grid-cols-2 gap-3">
+	                            <input type="text" id="apiUsername" placeholder="用户名" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                            <input type="password" id="apiPassword" placeholder="密码" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                        </div>
+	                        <button onclick="apiLogin()" id="loginBtn" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2">
+	                            <i data-lucide="key" class="w-4 h-4"></i>
+	                            登录获取 Token
+	                        </button>
+	                        <div id="tokenDisplay" class="hidden rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-3">
+	                            <div class="flex items-center justify-between mb-1">
+	                                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400">获取成功</span>
+	                                <button onclick="copyToken()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+	                                    <i data-lucide="copy" class="w-3 h-3"></i> 复制
+	                                </button>
+	                            </div>
+	                            <code id="tokenValue" class="text-xs text-emerald-800 dark:text-emerald-300 break-all font-mono"></code>
+	                        </div>
+	                    </div>
+	
+	                    <!-- 步骤2：发送通知 -->
+	                    <div class="space-y-3 opacity-50 pointer-events-none transition-opacity" id="notifySection">
+	                        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+	                            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">2</span>
+	                            发送通知
+	                            <span class="text-xs font-normal text-gray-500 ml-auto">POST /api/User/notify</span>
+	                        </div>
+	                        
+	                        <input type="text" id="notifyTitle" placeholder="通知标题" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                        <textarea id="notifyDesc" placeholder="通知内容描述..." rows="3" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white resize-none"></textarea>
+	                        
+	                        <!-- Token传递方式 -->
+	                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+	                            <span>Token传递方式：</span>
+	                            <label class="flex items-center gap-1 cursor-pointer">
+	                                <input type="radio" name="tokenMode" value="header" checked class="text-brand-500">
+	                                <span>Authorization Header</span>
+	                            </label>
+	                            <label class="flex items-center gap-1 cursor-pointer">
+	                                <input type="radio" name="tokenMode" value="body" class="text-brand-500">
+	                                <span>Body</span>
+	                            </label>
+	                        </div>
+	
+	                        <!-- 已选渠道标签 -->
+	                        <div class="flex flex-wrap gap-2 min-h-[32px]" id="selectedChannels">
+	                            <span class="text-xs text-gray-400 italic">未选择渠道（将使用用户默认配置）</span>
+	                        </div>
+	
+	                        <button onclick="sendNotify()" id="sendBtn" class="w-full py-3 bg-gradient-to-r from-brand-500 to-orange-500 hover:from-brand-600 hover:to-orange-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2">
+	                            <i data-lucide="send" class="w-4 h-4"></i>
+	                            发送通知
+	                        </button>
+	                        
+	                        <div id="notifyResult" class="hidden rounded-xl p-3 text-sm"></div>
+	                    </div>
+	                </div>
+	
+	                <!-- 右侧：渠道选择器 -->
+	                <div class="w-full lg:w-80 xl:w-96 bg-gray-50 dark:bg-gray-800/50 overflow-y-auto">
+	                    <div class="p-6">
+	                        <div class="flex items-center justify-between mb-4">
+	                            <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+	                                <i data-lucide="radio" class="w-4 h-4 text-brand-500"></i>
+	                                选择通知渠道
+	                            </h4>
+	                            <button onclick="clearChannels()" class="text-xs text-gray-500 hover:text-brand-500">清空</button>
+	                        </div>
+	                        
+	                        <div class="relative mb-4">
+	                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+	                            <input type="text" id="channelFilter" placeholder="搜索渠道..." oninput="filterChannelGrid()" 
+	                                class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                        </div>
+	
+	                        <div class="grid grid-cols-2 gap-2" id="channelGrid">
+	                            <!-- JS生成 -->
+	                        </div>
+	                        
+	                        <div class="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+	                            <p class="text-xs text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+	                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+	                                <span><code>sms</code> 为本地Android渠道，服务端调用请勿使用</span>
+	                            </p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	
+	            <!-- 底部：文档速查 -->
+	            <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 px-6 py-4">
+	                <div class="flex items-center justify-between">
+	                    <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 支持 GET/POST</span>
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 17+ 渠道</span>
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 600次/分钟</span>
+	                    </div>
+	                    <button onclick="showApiDoc()" class="text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 font-medium flex items-center gap-1">
+	                        查看完整文档 <i data-lucide="external-link" class="w-3 h-3"></i>
+	                    </button>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+	
+	<!-- 完整文档侧边栏（可选） -->
+	<div id="apiDocSidebar" class="fixed inset-0 z-[101] hidden">
+	    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeApiDoc()"></div>
+	    <div class="absolute right-0 top-0 bottom-0 w-full max-w-2xl bg-white dark:bg-gray-900 shadow-2xl transform translate-x-full transition-transform duration-300" id="apiDocContent">
+	        <div class="h-full flex flex-col">
+	            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+	                <h3 class="text-lg font-bold text-gray-900 dark:text-white">API 完整文档</h3>
+	                <button onclick="closeApiDoc()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+	                    <i data-lucide="x" class="w-5 h-5"></i>
+	                </button>
+	            </div>
+	            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-sm">
+	                <!-- 文档内容 -->
+	                <section>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">认证方式</h4>
+	                    <p class="text-gray-600 dark:text-gray-400 mb-3">支持以下三种方式传递 Token，优先级依次递减：</p>
+	                    <div class="space-y-2">
+	                        <div class="p-3 rounded-lg bg-slate-950 text-slate-300 font-mono text-xs">
+	                            Authorization: Bearer YOUR_TOKEN<br>
+	                            X-User-Token: YOUR_TOKEN<br>
+	                            X-Access-Token: YOUR_TOKEN
+	                        </div>
+	                    </div>
+	                </section>
+	                
+	                <section>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">接口端点</h4>
+	                    <div class="space-y-3">
+	                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+	                            <div class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-b border-gray-200 dark:border-gray-700 font-mono text-xs text-emerald-700 dark:text-emerald-400">POST /api/Auth/login</div>
+	                            <div class="p-4 text-xs text-gray-600 dark:text-gray-400">
+	                                获取用户 JWT Token<br>
+	                                Body: { "userName": "string", "password": "string" }
+	                            </div>
+	                        </div>
+	                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+	                            <div class="px-4 py-2 bg-brand-50 dark:bg-brand-900/20 border-b border-gray-200 dark:border-gray-700 font-mono text-xs text-brand-700 dark:text-brand-400">POST /api/User/notify</div>
+	                            <div class="p-4 text-xs text-gray-600 dark:text-gray-400 space-y-2">
+	                                <p>发送通知，channels 为可选，不指定则使用用户默认配置</p>
+	                                <pre class="bg-slate-950 text-slate-300 p-3 rounded-lg overflow-x-auto">{
+	  "token": "JWT_TOKEN",  // 如使用 Header 认证可省略
+	  "title": "string",
+	  "description": "string",
+	  "channels": ["wework_robot", "telegram"]
+	}</pre>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </section>
+	
+	                <section>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">Channels 标识符</h4>
+	                    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+	                        <table class="w-full text-xs">
+	                            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+	                                <tr><th class="px-3 py-2 text-left">标识符</th><th class="px-3 py-2 text-left">说明</th></tr>
+	                            </thead>
+	                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-600 dark:text-gray-400" id="docChannelTable">
+	                                <!-- JS填充 -->
+	                            </tbody>
+	                        </table>
+	                    </div>
+	                </section>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+	<script>
+		// ===== API 弹窗与调试工具 =====
+		const API_BASE = 'http://8.137.155.15:8000';
+		let currentToken = '';
+		let selectedChannels = new Set();
+		
+		const channelsData = [
+		    { id: 'dingtalk_group', name: '钉钉群机器人', icon: 'img/icon_dingtalk.webp', color: 'bg-blue-50 text-blue-700' },
+		    { id: 'dingtalk_inner', name: '钉钉企业', icon: 'img/icon_dingtalk_inner.webp', color: 'bg-blue-50 text-blue-700' },
+		    { id: 'wework_robot', name: '企业微信', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700' },
+		    { id: 'wework_agent', name: '企业微信应用', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700', pro: true },
+		    { id: 'feishu', name: '飞书', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600' },
+		    { id: 'feishu_app', name: '飞书应用', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600', pro: true },
+		    { id: 'email', name: '邮件', icon: 'img/icon_email.webp', color: 'bg-orange-50 text-orange-700' },
+		    { id: 'bark', name: 'Bark', icon: 'img/icon_bark.webp', color: 'bg-gray-50 text-gray-700' },
+		    { id: 'telegram', name: 'Telegram', icon: 'img/icon_telegram.webp', color: 'bg-sky-50 text-sky-700', pro: true },
+		    { id: 'discord_bot', name: 'Discord', icon: 'img/icon_discord.webp', color: 'bg-indigo-50 text-indigo-700', pro: true },
+		    { id: 'gotify', name: 'Gotify', icon: 'img/icon_gotify.webp', color: 'bg-emerald-50 text-emerald-700' },
+		    { id: 'webhook', name: 'Webhook', icon: 'img/icon_webhook.webp', color: 'bg-purple-50 text-purple-700' },
+		    { id: 'serverchan', name: 'Server酱', icon: 'img/icon_serverchan.webp', color: 'bg-pink-50 text-pink-700' },
+		    { id: 'pushplus', name: 'PushPlus', icon: 'img/icon_pushplus.webp', color: 'bg-cyan-50 text-cyan-700' },
+		    { id: 'qmsg', name: 'QMsg酱', icon: 'img/icon_qmsg.webp', color: 'bg-rose-50 text-rose-700' },
+		    { id: 'socket', name: 'Socket', icon: 'img/icon_socket.webp', color: 'bg-amber-50 text-amber-700', pro: true },
+		    { id: 'sms', name: '短信', icon: 'img/icon_sms.webp', color: 'bg-red-50 text-red-700', disabled: true }
+		];
+		
+		function openApiModal() {
+		    const modal = document.getElementById('apiModal');
+		    const backdrop = document.getElementById('apiModalBackdrop');
+		    const content = document.getElementById('apiModalContent');
+		    
+		    modal.classList.remove('hidden');
+		    void modal.offsetWidth;
+		    
+		    backdrop.classList.remove('opacity-0');
+		    content.classList.remove('scale-95', 'opacity-0');
+		    content.classList.add('scale-100', 'opacity-100');
+		    
+		    document.body.style.overflow = 'hidden';
+		    
+		    if (!document.getElementById('channelGrid').children.length) {
+		        renderChannelGrid();
+		        renderDocChannelTable();
+		    }
+		    
+		    setTimeout(() => lucide.createIcons(), 100);
+		}
+		
+		function closeApiModal() {
+		    const modal = document.getElementById('apiModal');
+		    const backdrop = document.getElementById('apiModalBackdrop');
+		    const content = document.getElementById('apiModalContent');
+		    
+		    backdrop.classList.add('opacity-0');
+		    content.classList.remove('scale-100', 'opacity-100');
+		    content.classList.add('scale-95', 'opacity-0');
+		    
+		    setTimeout(() => {
+		        modal.classList.add('hidden');
+		        document.body.style.overflow = '';
+		    }, 300);
+		}
+		
+		function renderChannelGrid() {
+		    const grid = document.getElementById('channelGrid');
+		    grid.innerHTML = channelsData.map(ch => `
+		        <button onclick="toggleChannel('${ch.id}')" id="ch-${ch.id}" 
+		            class="relative p-3 rounded-xl border-2 border-transparent bg-white dark:bg-gray-800 hover:border-brand-200 dark:hover:border-brand-800 transition-all text-left group ${ch.disabled ? 'opacity-50 cursor-not-allowed' : ''}">
+		            ${ch.pro ? '<span class="absolute top-1 right-1"><i data-lucide="crown" class="w-3 h-3 text-yellow-500"></i></span>' : ''}
+		            ${ch.disabled ? '<span class="absolute top-1 right-1 text-[10px] text-red-500 font-bold">不可用</span>' : ''}
+		            <div class="w-8 h-8 rounded-lg ${ch.color} flex items-center justify-center mb-2">
+		                <img src="${ch.icon}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
+		            </div>
+		            <div class="text-xs font-medium text-gray-700 dark:text-gray-300">${ch.name}</div>
+		        </button>
+		    `).join('');
+		}
+		
+		function renderDocChannelTable() {
+		    const tbody = document.getElementById('docChannelTable');
+		    tbody.innerHTML = channelsData.map(ch => `
+		        <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+		            <td class="px-3 py-2 font-mono text-brand-600 dark:text-brand-400">${ch.id}</td>
+		            <td class="px-3 py-2">${ch.name} ${ch.pro ? '<span class="text-yellow-500 text-[10px]">PRO</span>' : ''}</td>
+		        </tr>
+		    `).join('');
+		}
+		
+		function toggleChannel(id) {
+		    if (channelsData.find(c => c.id === id)?.disabled) return;
+		    
+		    const btn = document.getElementById(`ch-${id}`);
+		    if (selectedChannels.has(id)) {
+		        selectedChannels.delete(id);
+		        btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+		    } else {
+		        selectedChannels.add(id);
+		        btn.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+		    }
+		    updateSelectedTags();
+		}
+		
+		function updateSelectedTags() {
+		    const container = document.getElementById('selectedChannels');
+		    if (selectedChannels.size === 0) {
+		        container.innerHTML = '<span class="text-xs text-gray-400 italic">未选择渠道（将使用用户默认配置）</span>';
+		        return;
+		    }
+		    container.innerHTML = Array.from(selectedChannels).map(id => {
+		        const ch = channelsData.find(c => c.id === id);
+		        return `
+		            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-medium">
+		                ${ch.name}
+		                <button onclick="toggleChannel('${id}')" class="hover:text-brand-900"><i data-lucide="x" class="w-3 h-3"></i></button>
+		            </span>
+		        `;
+		    }).join('');
+		    lucide.createIcons();
+		}
+		
+		function clearChannels() {
+		    selectedChannels.clear();
+		    document.querySelectorAll('[id^="ch-"]').forEach(btn => {
+		        btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
+		    });
+		    updateSelectedTags();
+		}
+		
+		function filterChannelGrid() {
+		    const term = document.getElementById('channelFilter').value.toLowerCase();
+		    channelsData.forEach(ch => {
+		        const btn = document.getElementById(`ch-${ch.id}`);
+		        const match = ch.name.includes(term) || ch.id.includes(term);
+		        btn.style.display = match ? 'block' : 'none';
+		    });
+		}
+		
+		async function apiLogin() {
+		    const btn = document.getElementById('loginBtn');
+		    const username = document.getElementById('apiUsername').value;
+		    const password = document.getElementById('apiPassword').value;
+		    
+		    if (!username || !password) {
+		        alert('请输入用户名和密码');
+		        return;
+		    }
+		    
+		    btn.disabled = true;
+		    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 登录中...';
+		    lucide.createIcons();
+		    
+		    try {
+		        const res = await fetch(`${API_BASE}/api/Auth/login`, {
+		            method: 'POST',
+		            headers: { 'Content-Type': 'application/json' },
+		            body: JSON.stringify({ userName: username, password: password })
+		        });
+		        
+		        const data = await res.json();
+		        
+		        if (data.token || data.accessToken || data.data?.token) {
+		            currentToken = data.token || data.accessToken || data.data.token;
+		            document.getElementById('tokenValue').textContent = currentToken;
+		            document.getElementById('tokenDisplay').classList.remove('hidden');
+		            
+		            // 解锁通知区域
+		            const notifySection = document.getElementById('notifySection');
+		            notifySection.classList.remove('opacity-50', 'pointer-events-none');
+		            notifySection.classList.add('opacity-100');
+		            
+		            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> 登录成功';
+		            btn.classList.remove('bg-brand-500', 'hover:bg-brand-600');
+		            btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+		        } else {
+		            throw new Error(data.message || '登录失败');
+		        }
+		    } catch (err) {
+		        btn.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 重新登录';
+		        alert('登录失败: ' + err.message);
+		    } finally {
+		        btn.disabled = false;
+		        lucide.createIcons();
+		    }
+		}
+		
+		function copyToken() {
+		    navigator.clipboard.writeText(currentToken);
+		    const btn = event.currentTarget;
+		    const orig = btn.innerHTML;
+		    btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> 已复制';
+		    setTimeout(() => {
+		        btn.innerHTML = orig;
+		        lucide.createIcons();
+		    }, 2000);
+		}
+		
+		async function sendNotify() {
+		    const btn = document.getElementById('sendBtn');
+		    const title = document.getElementById('notifyTitle').value;
+		    const desc = document.getElementById('notifyDesc').value;
+		    const tokenMode = document.querySelector('input[name="tokenMode"]:checked').value;
+		    
+		    if (!title) {
+		        alert('请输入通知标题');
+		        return;
+		    }
+		    
+		    const body = {
+		        title: title,
+		        description: desc || title
+		    };
+		    
+		    const headers = {
+		        'Content-Type': 'application/json'
+		    };
+		    
+		    if (tokenMode === 'header') {
+		        headers['Authorization'] = `Bearer ${currentToken}`;
+		    } else {
+		        body.token = currentToken;
+		    }
+		    
+		    if (selectedChannels.size > 0) {
+		        body.channels = Array.from(selectedChannels);
+		    }
+		    
+		    btn.disabled = true;
+		    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 发送中...';
+		    lucide.createIcons();
+		    
+		    try {
+		        const res = await fetch(`${API_BASE}/api/User/notify`, {
+		            method: 'POST',
+		            headers: headers,
+		            body: JSON.stringify(body)
+		        });
+		        
+		        const data = await res.json();
+		        const resultDiv = document.getElementById('notifyResult');
+		        resultDiv.classList.remove('hidden');
+		        
+		        if (res.ok) {
+		            resultDiv.className = 'rounded-xl p-3 text-sm bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
+		            resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> 发送成功</div><pre class="mt-2 text-xs overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>`;
+		        } else {
+		            throw new Error(data.message || '发送失败');
+		        }
+		    } catch (err) {
+		        const resultDiv = document.getElementById('notifyResult');
+		        resultDiv.classList.remove('hidden');
+		        resultDiv.className = 'rounded-xl p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300';
+		        resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4"></i> 发送失败</div><p class="mt-1 text-xs">${err.message}</p>`;
+		    } finally {
+		        btn.disabled = false;
+		        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> 发送通知';
+		        lucide.createIcons();
+		    }
+		}
+		
+		function resetApiForm() {
+		    currentToken = '';
+		    selectedChannels.clear();
+		    document.getElementById('apiUsername').value = '';
+		    document.getElementById('apiPassword').value = '';
+		    document.getElementById('notifyTitle').value = '';
+		    document.getElementById('notifyDesc').value = '';
+		    document.getElementById('tokenDisplay').classList.add('hidden');
+		    document.getElementById('notifyResult').classList.add('hidden');
+		    document.getElementById('notifySection').classList.add('opacity-50', 'pointer-events-none');
+		    
+		    const btn = document.getElementById('loginBtn');
+		    btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+		    btn.classList.add('bg-brand-500', 'hover:bg-brand-600');
+		    btn.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 登录获取 Token';
+		    
+		    clearChannels();
+		    lucide.createIcons();
+		}
+		
+		function showApiDoc() {
+		    const sidebar = document.getElementById('apiDocSidebar');
+		    const content = document.getElementById('apiDocContent');
+		    sidebar.classList.remove('hidden');
+		    setTimeout(() => {
+		        content.classList.remove('translate-x-full');
+		    }, 10);
+		    lucide.createIcons();
+		}
+		
+		function closeApiDoc() {
+		    const sidebar = document.getElementById('apiDocSidebar');
+		    const content = document.getElementById('apiDocContent');
+		    content.classList.add('translate-x-full');
+		    setTimeout(() => {
+		        sidebar.classList.add('hidden');
+		    }, 300);
+		}
+		
+		// ESC 关闭
+		document.addEventListener('keydown', (e) => {
+		    if (e.key === 'Escape') {
+		        if (!document.getElementById('apiDocSidebar').classList.contains('hidden')) {
+		            closeApiDoc();
+		        } else if (!document.getElementById('apiModal').classList.contains('hidden')) {
+		            closeApiModal();
+		        }
+		    }
+		});
+	</script>
+</body>
+</html>
