@@ -179,6 +179,225 @@
         .dark .channel-card {
             border-color: rgba(71, 85, 105, 0.6);
         }
+        .snapshot-showcase {
+            position: relative;
+            overflow: hidden;
+            border-radius: 2.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 34%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 48%, rgba(249, 115, 22, 0.92) 100%);
+            box-shadow: 0 28px 70px -32px rgba(15, 23, 42, 0.42);
+        }
+        .snapshot-showcase::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 38%, transparent 62%, rgba(255, 255, 255, 0.05));
+            pointer-events: none;
+        }
+        .dark .snapshot-showcase {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .snapshot-track {
+            display: flex;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+        .snapshot-slide {
+            min-width: 100%;
+            display: grid;
+            align-items: center;
+            gap: 2.25rem;
+            padding: clamp(1.5rem, 3vw, 2.75rem);
+            padding-bottom: 5.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        .snapshot-device-shell {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .snapshot-device-shell::before {
+            content: '';
+            position: absolute;
+            width: min(76vw, 20rem);
+            aspect-ratio: 1;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, rgba(249, 115, 22, 0.26) 48%, transparent 72%);
+            filter: blur(16px);
+            opacity: 0.9;
+        }
+        .snapshot-device {
+            position: relative;
+            width: min(100%, 18rem);
+            padding: 0.78rem;
+            border-radius: 2.2rem;
+            background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+            box-shadow: 0 32px 65px -28px rgba(2, 6, 23, 0.78), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        }
+        .snapshot-device::before {
+            content: '';
+            position: absolute;
+            top: 0.48rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36%;
+            height: 0.34rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .snapshot-device img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 1.55rem;
+            background: #ffffff;
+            object-fit: cover;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        .snapshot-copy {
+            color: #ffffff;
+        }
+        .snapshot-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: rgba(255, 247, 237, 0.96);
+        }
+        .snapshot-title {
+            margin-top: 1rem;
+            font-size: clamp(1.9rem, 4vw, 2rem);
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+        .snapshot-description {
+            margin-top: 1rem;
+            max-width: 34rem;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: rgba(255, 237, 213, 0.88);
+        }
+        .snapshot-chip-list {
+            margin-top: 1.6rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .snapshot-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.11);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.94);
+            font-size: 0.875rem;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .snapshot-controls {
+            position: absolute;
+            right: 1.5rem;
+            bottom: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            z-index: 2;
+        }
+        .snapshot-nav {
+            width: 3rem;
+            height: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.48);
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .snapshot-nav:hover {
+            transform: translateY(-2px);
+            background: rgba(249, 115, 22, 0.94);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+        .snapshot-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 2rem;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.6rem;
+            z-index: 2;
+        }
+        .snapshot-dot {
+            width: 0.72rem;
+            height: 0.72rem;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.38);
+            cursor: pointer;
+            padding: 0;
+            transition: width 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+        .snapshot-dot.is-active {
+            width: 2.35rem;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+        @media (min-width: 900px) {
+            .snapshot-slide {
+                grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+                padding-right: 6.2rem;
+            }
+        }
+        @media (max-width: 899px) {
+            .snapshot-copy {
+                text-align: center;
+            }
+            .snapshot-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .snapshot-chip-list {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 640px) {
+            .snapshot-slide {
+                gap: 1.6rem;
+                padding-bottom: 6.2rem;
+            }
+            .snapshot-controls {
+                right: 1rem;
+                bottom: 1rem;
+            }
+            .snapshot-dots {
+                left: 1rem;
+                bottom: 2.1rem;
+                transform: none;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .snapshot-track,
+            .snapshot-nav,
+            .snapshot-dot {
+                transition: none;
+            }
+        }
     </style>
 </head>
 <body id="top" class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -721,6 +940,138 @@ const result = await response.json();</code></pre>
         </div>
     </section>
 
+    <section class="pb-24">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 ring-1 ring-brand-100">软件快照</div>
+                <p class="mx-auto mt-5 max-w-3xl text-lg leading-8 text-gray-600 dark:text-gray-300">
+                   集中呈现列表、分组、时间线、月度总览与通知渠道等核心界面。
+                </p>
+            </div>
+
+            <div class="mt-10 snapshot-showcase" data-snapshot-carousel>
+                <div class="snapshot-track" data-snapshot-track>
+                    <article class="snapshot-slide" data-snapshot-slide>
+                        <div class="snapshot-device-shell">
+                            <div class="snapshot-device">
+                                <img src="pic/经典列表视图.jpg" alt="经典列表视图截图" loading="eager" fetchpriority="high">
+                            </div>
+                        </div>
+                        <div class="snapshot-copy">
+                            <div class="snapshot-kicker">01 / 05 · 经典列表</div>
+                            <h3 class="snapshot-title">事项进度一屏收拢，处理更直接</h3>
+                            <p class="snapshot-description">
+                                默认列表视图把待办状态、优先级和截止时间集中展示，适合快速浏览今日安排，也方便直接勾选完成。
+                            </p>
+                            <div class="snapshot-chip-list">
+                                <span class="snapshot-chip">快速勾选</span>
+                                <span class="snapshot-chip">优先级聚合</span>
+                                <span class="snapshot-chip">日常清单</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="snapshot-slide" data-snapshot-slide>
+                        <div class="snapshot-device-shell">
+                            <div class="snapshot-device">
+                                <img src="pic/timepage日期分组视图.jpg" alt="日期分组视图截图" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="snapshot-copy">
+                            <div class="snapshot-kicker">02 / 05 · 日期分组</div>
+                            <h3 class="snapshot-title">按日期拆分任务，近期安排更清晰</h3>
+                            <p class="snapshot-description">
+                                通过日期分组快速查看未来几天的任务堆叠情况，适合处理跨天事项和阶段性计划，避免临近提醒被遗漏。
+                            </p>
+                            <div class="snapshot-chip-list">
+                                <span class="snapshot-chip">跨天规划</span>
+                                <span class="snapshot-chip">阶段安排</span>
+                                <span class="snapshot-chip">临期提醒</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="snapshot-slide" data-snapshot-slide>
+                        <div class="snapshot-device-shell">
+                            <div class="snapshot-device">
+                                <img src="pic/timepage日期时间线视图.jpg" alt="日期时间线视图截图" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="snapshot-copy">
+                            <div class="snapshot-kicker">03 / 05 · 时间线视图</div>
+                            <h3 class="snapshot-title">一天的节奏顺着时间线自然展开</h3>
+                            <p class="snapshot-description">
+                                对同一天内的任务、提醒和时间冲突进行时间线排布，能更直观看到当天节奏，适合高频提醒与密集事务场景。
+                            </p>
+                            <div class="snapshot-chip-list">
+                                <span class="snapshot-chip">日程节奏</span>
+                                <span class="snapshot-chip">时间冲突</span>
+                                <span class="snapshot-chip">高频提醒</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="snapshot-slide" data-snapshot-slide>
+                        <div class="snapshot-device-shell">
+                            <div class="snapshot-device">
+                                <img src="pic/月度总览页面.jpg" alt="月度总览页面截图" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="snapshot-copy">
+                            <div class="snapshot-kicker">04 / 05 · 月度总览</div>
+                            <h3 class="snapshot-title">整月任务热区，忙闲分布一眼可见</h3>
+                            <p class="snapshot-description">
+                                月度总览适合做长期回顾和排期观察，能迅速识别任务密集日、空档期，以及更适合安排新计划的时间窗口。
+                            </p>
+                            <div class="snapshot-chip-list">
+                                <span class="snapshot-chip">月历总览</span>
+                                <span class="snapshot-chip">长期规划</span>
+                                <span class="snapshot-chip">节奏观察</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="snapshot-slide" data-snapshot-slide>
+                        <div class="snapshot-device-shell">
+                            <div class="snapshot-device">
+                                <img src="pic/通知渠道.jpg" alt="通知渠道截图" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="snapshot-copy">
+                            <div class="snapshot-kicker">05 / 05 · 通知渠道</div>
+                            <h3 class="snapshot-title">触达方式集中配置，提醒不再只停留在 App 内</h3>
+                            <p class="snapshot-description">
+                                将不同通知渠道统一收口到同一界面，便于按场景选择推送方式，强化关键提醒的触达成功率。
+                            </p>
+                            <div class="snapshot-chip-list">
+                                <span class="snapshot-chip">渠道切换</span>
+                                <span class="snapshot-chip">统一配置</span>
+                                <span class="snapshot-chip">强提醒触达</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="snapshot-controls">
+                    <button type="button" class="snapshot-nav" data-snapshot-prev aria-label="上一张快照">
+                        <i data-lucide="chevron-left" class="h-5 w-5"></i>
+                    </button>
+                    <button type="button" class="snapshot-nav" data-snapshot-next aria-label="下一张快照">
+                        <i data-lucide="chevron-right" class="h-5 w-5"></i>
+                    </button>
+                </div>
+
+                <div class="snapshot-dots" aria-label="软件快照轮播分页">
+                    <button type="button" class="snapshot-dot is-active" data-snapshot-dot="0" aria-label="切换到经典列表视图" aria-pressed="true"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="1" aria-label="切换到日期分组视图" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="2" aria-label="切换到日期时间线视图" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="3" aria-label="切换到月度总览页面" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="4" aria-label="切换到通知渠道" aria-pressed="false"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="border-t border-orange-100 bg-white/80 py-10 backdrop-blur">
         <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 md:flex-row lg:px-8">
             <div>
@@ -794,6 +1145,91 @@ const result = await response.json();</code></pre>
             el.style.transition = `opacity 0.6s ease ${index * 0.05}s, transform 0.6s ease ${index * 0.05}s`;
             observer.observe(el);
         });
+
+        (function initSnapshotCarousel() {
+            const carousel = document.querySelector('[data-snapshot-carousel]');
+            if (!carousel) {
+                return;
+            }
+
+            const track = carousel.querySelector('[data-snapshot-track]');
+            const slides = Array.from(carousel.querySelectorAll('[data-snapshot-slide]'));
+            const dots = Array.from(carousel.querySelectorAll('[data-snapshot-dot]'));
+            const prevButton = carousel.querySelector('[data-snapshot-prev]');
+            const nextButton = carousel.querySelector('[data-snapshot-next]');
+            if (!track || slides.length === 0 || !prevButton || !nextButton) {
+                return;
+            }
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const autoplayDelay = 4200;
+            let activeIndex = 0;
+            let autoplayTimer = null;
+
+            function render() {
+                track.style.transform = `translateX(-${activeIndex * 100}%)`;
+
+                slides.forEach((slide, index) => {
+                    slide.setAttribute('aria-hidden', index === activeIndex ? 'false' : 'true');
+                });
+
+                dots.forEach((dot, index) => {
+                    const isActive = index === activeIndex;
+                    dot.classList.toggle('is-active', isActive);
+                    dot.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+            }
+
+            function stopAutoplay() {
+                if (autoplayTimer !== null) {
+                    window.clearInterval(autoplayTimer);
+                    autoplayTimer = null;
+                }
+            }
+
+            function startAutoplay() {
+                if (prefersReducedMotion || slides.length <= 1) {
+                    return;
+                }
+
+                stopAutoplay();
+                autoplayTimer = window.setInterval(() => {
+                    goTo(activeIndex + 1, false);
+                }, autoplayDelay);
+            }
+
+            function goTo(index, resetAutoplay = true) {
+                activeIndex = (index + slides.length) % slides.length;
+                render();
+
+                if (resetAutoplay) {
+                    startAutoplay();
+                }
+            }
+
+            prevButton.addEventListener('click', () => goTo(activeIndex - 1));
+            nextButton.addEventListener('click', () => goTo(activeIndex + 1));
+
+            dots.forEach((dot) => {
+                dot.addEventListener('click', () => {
+                    const index = Number(dot.dataset.snapshotDot);
+                    if (!Number.isNaN(index)) {
+                        goTo(index);
+                    }
+                });
+            });
+
+            carousel.addEventListener('mouseenter', stopAutoplay);
+            carousel.addEventListener('mouseleave', startAutoplay);
+            carousel.addEventListener('focusin', stopAutoplay);
+            carousel.addEventListener('focusout', (event) => {
+                if (!carousel.contains(event.relatedTarget)) {
+                    startAutoplay();
+                }
+            });
+
+            render();
+            startAutoplay();
+        })();
     </script>
 	<!-- API 调试与说明弹窗 -->
 	<div id="apiModal" class="fixed inset-0 z-[100] hidden">
