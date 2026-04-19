@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <meta name="referrer" content="never">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="description" content="叮办聚合消息通知,多维度日程视图待办事项管理。Do aggregate message notification, multi-dimensional schedule view to-do list management">
+	    <meta name="keywords" content="叮办聚合消息通知,待办事项日程管理, 应用通知转发,短信转发,消息通知,日视图,周视图 ,月视图,日程提醒,便签笔记,Ding office aggregate message notification, to-do list schedule management, application notification forwarding, SMS forwarding, message notification, Day View, week View, month view, schedule reminder, note notes">
     <title>叮办 - 让提醒跨App追着你跑</title>
 	<script src="script1.js"></script>
 	<script src="script2.js"></script> 
@@ -137,6 +141,46 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        .language-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.28rem;
+            border-radius: 999px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.32);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .language-toggle:hover {
+            border-color: rgba(249, 115, 22, 0.55);
+            box-shadow: 0 16px 28px -20px rgba(249, 115, 22, 0.45);
+            transform: translateY(-1px);
+        }
+        .dark .language-toggle {
+            border-color: rgba(71, 85, 105, 0.8);
+            background: rgba(17, 24, 39, 0.88);
+            box-shadow: 0 12px 28px -20px rgba(15, 23, 42, 0.58);
+        }
+        .language-toggle__option {
+            min-width: 2.25rem;
+            padding: 0.38rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #64748b;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dark .language-toggle__option {
+            color: #cbd5e1;
+        }
+        .language-toggle__option.is-active {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #ffffff;
+            box-shadow: 0 12px 24px -18px rgba(249, 115, 22, 0.8);
         }
         .gradient-bg {
             background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
@@ -407,26 +451,30 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-2">
                     <div class="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-lg ring-1 ring-brand-100 dark:ring-gray-700">
-                        <img src="img/dotnet_bot.png" alt="叮办 Logo" class="w-full h-full object-cover">
+                        <img src="img/dotnet_bot.png" alt="叮办 Logo" data-i18n-alt="叮办 Logo" class="w-full h-full object-cover">
                     </div>
-                    <span class="text-2xl font-bold tracking-tight">叮办</span>
+                    <span class="text-2xl font-bold tracking-tight" data-i18n="叮办">叮办</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">核心功能</a>
-                    <a href="#channels" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">通知渠道</a>
-                    <a href="#pricing" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">会员方案</a>
-                    <a href="#api" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium">开发者API</a>
+                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium" data-i18n="核心功能">核心功能</a>
+                    <a href="#channels" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium" data-i18n="通知渠道">通知渠道</a>
+                    <a href="#pricing" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium" data-i18n="会员方案">会员方案</a>
+                    <a href="#api" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium" data-i18n="开发者API">开发者API</a>
 					<button onclick="openApiModal()" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium flex items-center gap-1">
 					    <i data-lucide="terminal" class="w-4 h-4"></i>
-					    API调试
+					    <span data-i18n="API调试">API调试</span>
 					</button>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换深色模式">
+                    <button id="languageToggle" type="button" onclick="toggleLanguage()" class="language-toggle" aria-label="切换语言" title="切换语言" data-i18n-aria-label="切换语言" data-i18n-title="切换语言">
+                        <span class="language-toggle__option is-active" data-language-option="zh">中</span>
+                        <span class="language-toggle__option" data-language-option="en">EN</span>
+                    </button>
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换深色模式" data-i18n-aria-label="切换深色模式">
                         <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
                         <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
                     </button>
-                    <a href="http://8.137.155.15:14335/" target="_blank" class="hidden sm:inline-flex items-center px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-brand-500/30">
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="hidden sm:inline-flex items-center px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-brand-500/30" data-i18n="立即体验-Web端">
                         立即体验-Web端
                     </a>
                 </div>
@@ -448,14 +496,14 @@
                     <div class="relative z-10">
                         <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/85 dark:bg-gray-800/80 backdrop-blur-sm border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-sm font-semibold mb-6 shadow-sm">
                             <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
-                            短注意·精准触发
+                            <span data-i18n="短注意·精准触发">短注意·精准触发</span>
                         </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-tight tracking-tight" data-i18n-html="heroTitleHtml">
                             让提醒更贴心，
                             <br class="hidden sm:block">
                             让协作更高效
                         </h1>
-                        <p class="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
+                        <p class="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl" data-i18n-html="heroDescriptionHtml">
                             叮办把 <span class="font-semibold text-brand-600 dark:text-brand-400">跨平台待办</span>、
                             <span class="font-semibold text-gray-900 dark:text-white">17+ 聚合推送</span> 和强提醒体验整合到一起，
                             让重要事项真正做到“跨App追着你跑”。
@@ -476,23 +524,23 @@
                             <div class="hero-stat rounded-2xl px-4 py-3">
                                 <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
                                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 text-brand-500"></i>
-                                    三端实时同步
+                                    <span data-i18n="三端实时同步">三端实时同步</span>
                                 </div>
-                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">PC、移动、Web 一处更新全端同步</p>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-i18n="PC、移动、Web 一处更新全端同步">PC、移动、Web 一处更新全端同步</p>
                             </div>
                             <div class="hero-stat rounded-2xl px-4 py-3">
                                 <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
                                     <i data-lucide="bell-ring" class="w-4 h-4 mr-2 text-brand-500"></i>
-                                    强提醒触达
+                                    <span data-i18n="强提醒触达">强提醒触达</span>
                                 </div>
-                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">弹窗、锁屏、振动、渠道通知同时覆盖</p>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-i18n="弹窗、锁屏、振动、渠道通知同时覆盖">弹窗、锁屏、振动、渠道通知同时覆盖</p>
                             </div>
                             <div class="hero-stat rounded-2xl px-4 py-3">
                                 <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
                                     <i data-lucide="users" class="w-4 h-4 mr-2 text-brand-500"></i>
-                                    团队共享提醒
+                                    <span data-i18n="团队共享提醒">团队共享提醒</span>
                                 </div>
-                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">多人协作仍保持任务边界清晰</p>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-i18n="多人协作仍保持任务边界清晰">多人协作仍保持任务边界清晰</p>
                             </div>
                         </div>
                     </div>
@@ -501,8 +549,8 @@
                         <div class="relative rounded-[2rem] bg-white/90 dark:bg-gray-900/80 border border-white/80 dark:border-gray-700 p-6 sm:p-8 shadow-2xl">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-brand-600 dark:text-brand-400">PC · 移动 · Web</p>
-                                    <h2 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">无缝协同的提醒主控台</h2>
+                                    <p class="text-sm font-semibold text-brand-600 dark:text-brand-400" data-i18n="PC · 移动 · Web">PC · 移动 · Web</p>
+                                    <h2 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white" data-i18n="无缝协同的提醒主控台">无缝协同的提醒主控台</h2>
                                 </div>
                                 <div class="hidden sm:flex items-center gap-2">
                                     <div class="w-3 h-3 rounded-full bg-rose-400"></div>
@@ -521,33 +569,33 @@
                                 </div>
                             </div>
 
-                            <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                            <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400" data-i18n="手机、电脑、网页实时同步，最小化或锁屏也不错过提醒。">
                                 手机、电脑、网页实时同步，最小化或锁屏也不错过提醒。
                             </p>
 
                             <div class="mt-6 flex flex-wrap justify-center gap-3">
                                 <span class="inline-flex items-center rounded-full bg-brand-50 dark:bg-brand-900/30 px-4 py-2 text-sm font-medium text-brand-700 dark:text-brand-300">
                                     <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
-                                    每天
+                                    <span data-i18n="每天">每天</span>
                                 </span>
                                 <span class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300">
                                     <i data-lucide="calendar-days" class="w-4 h-4 mr-2"></i>
-                                    每周
+                                    <span data-i18n="每周">每周</span>
                                 </span>
                                 <span class="inline-flex items-center rounded-full bg-purple-50 dark:bg-purple-900/30 px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300">
                                     <i data-lucide="calendar-days" class="w-4 h-4 mr-2"></i>
-                                    每月
+                                    <span data-i18n="每月">每月</span>
                                 </span>
                                 <span class="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
                                     <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
-                                    自定义分钟
+                                    <span data-i18n="自定义分钟">自定义分钟</span>
                                 </span>
                             </div>
                         </div>
 
                         <div class="hero-float absolute -top-4 right-4 hidden rounded-2xl bg-white/90 dark:bg-gray-900/90 px-4 py-3 shadow-xl border border-white/70 dark:border-gray-700 md:block">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">聚合能力</p>
-                            <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white">17+ 通知渠道</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400" data-i18n="聚合能力">聚合能力</p>
+                            <p class="mt-1 text-lg font-bold text-gray-900 dark:text-white" data-i18n="17+ 通知渠道">17+ 通知渠道</p>
                         </div>
                      <!--   <div class="hero-float absolute -bottom-5 left-4 hidden rounded-2xl bg-gray-900 text-white px-4 py-3 shadow-xl md:block">
                             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">开发者 API</p>
@@ -566,8 +614,8 @@
     <section id="features" class="py-20 bg-white dark:bg-gray-900 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">核心亮点</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4" data-i18n="核心亮点">核心亮点</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-i18n="从个人日程到团队协作，从单次提醒到循环任务，叮办提供完整的强提醒与待办管理体验。">
                     从个人日程到团队协作，从单次提醒到循环任务，叮办提供完整的强提醒与待办管理体验。
                 </p>
             </div>
@@ -579,8 +627,8 @@
                         <div class="w-14 h-14 bg-brand-100 dark:bg-brand-900/50 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6">
                             <i data-lucide="repeat" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">灵活循环提醒</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="灵活循环提醒">灵活循环提醒</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="支持每天、每周、每月固定日期循环，也可设置随机时间范围，完美适配久坐、喝水等习惯场景。">
                             支持每天、每周、每月固定日期循环，也可设置随机时间范围，完美适配久坐、喝水等习惯场景。
                         </p>
                     </div>
@@ -592,8 +640,8 @@
                         <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
                             <i data-lucide="calendar-days" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">多维度视图</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="多维度视图">多维度视图</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="月度总览、时间轴、周视图、日视图自由切换，侧边栏快速跳转，待办规划一目了然。">
                             月度总览、时间轴、周视图、日视图自由切换，侧边栏快速跳转，待办规划一目了然。
                         </p>
                     </div>
@@ -605,8 +653,8 @@
                         <div class="w-14 h-14 bg-cyan-100 dark:bg-cyan-900/50 rounded-2xl flex items-center justify-center text-cyan-600 dark:text-cyan-400 mb-6">
                             <i data-lucide="smartphone" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">全平台同步</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="全平台同步">全平台同步</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="Windows、macOS、Android、iOS、Web 多端实时同步，断网时也可借助本地缓存继续查看任务。">
                             Windows、macOS、Android、iOS、Web 多端实时同步，断网时也可借助本地缓存继续查看任务。
                         </p>
                     </div>
@@ -618,8 +666,8 @@
                         <div class="w-14 h-14 bg-rose-100 dark:bg-rose-900/50 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 mb-6">
                             <i data-lucide="message-circle" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">社区互动</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="社区互动">社区互动</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="内置社区板块，支持浏览、点赞、评论、收藏。Pro 用户还可发帖与管理个人内容。">
                             内置社区板块，支持浏览、点赞、评论、收藏。Pro 用户还可发帖与管理个人内容。
                         </p>
                     </div>
@@ -631,8 +679,8 @@
                         <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/50 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400 mb-6">
                             <i data-lucide="users" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">团队共享</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="团队共享">团队共享</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="创建团队共享分组，组内任务全员同步提醒，成员只操作自己的待办，协作边界清晰。">
                             创建团队共享分组，组内任务全员同步提醒，成员只操作自己的待办，协作边界清晰。
                         </p>
                     </div>
@@ -644,8 +692,8 @@
                         <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/50 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6">
                             <i data-lucide="sticky-note" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">桌面便签</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3" data-i18n="桌面便签">桌面便签</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="支持桌面悬浮置顶便签，Pro 用户可上传图片，重要灵感与资料都能随手记录。">
                             支持桌面悬浮置顶便签，Pro 用户可上传图片，重要灵感与资料都能随手记录。
                         </p>
                     </div>
@@ -657,41 +705,41 @@
     <section id="channels" class="py-20 bg-gray-50 dark:bg-gray-800/50 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">17+ 聚合通知渠道</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-5">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4" data-i18n="17+ 聚合通知渠道">17+ 聚合通知渠道</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-5" data-i18n="无论您习惯使用哪种工具，叮办都能触达">
                     无论您习惯使用哪种工具，叮办都能触达
                 </p>
             </div>
 
             <div class="mb-12">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center justify-center">
-                    <span class="bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 px-3 py-1 rounded-full text-sm mr-3">常用渠道</span>
-                    全员可用
+                    <span class="bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 px-3 py-1 rounded-full text-sm mr-3" data-i18n="常用渠道">常用渠道</span>
+                    <span data-i18n="全员可用">全员可用</span>
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_dingtalk.webp" alt="钉钉群机器人"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">钉钉群机器人</span>
+                        <div class="channel-thumb"><img src="img/icon_dingtalk.webp" alt="钉钉群机器人" data-i18n-alt="钉钉群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="钉钉群机器人">钉钉群机器人</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_dingtalk_inner.webp" alt="钉钉企业机器人"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">钉钉企业</span>
+                        <div class="channel-thumb"><img src="img/icon_dingtalk_inner.webp" alt="钉钉企业机器人" data-i18n-alt="钉钉企业机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="钉钉企业">钉钉企业</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_wework_agent.webp" alt="企业微信群机器人"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">企业微信</span>
+                        <div class="channel-thumb"><img src="img/icon_wework_agent.webp" alt="企业微信群机器人" data-i18n-alt="企业微信群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="企业微信">企业微信</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_feishu.webp" alt="飞书群机器人"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">飞书</span>
+                        <div class="channel-thumb"><img src="img/icon_feishu.webp" alt="飞书群机器人" data-i18n-alt="飞书群机器人"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="飞书">飞书</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_email.webp" alt="QQ邮箱"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">QQ邮箱</span>
+                        <div class="channel-thumb"><img src="img/icon_email.webp" alt="QQ邮箱" data-i18n-alt="QQ邮箱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="QQ邮箱">QQ邮箱</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_sms.webp" alt="手机短信"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">手机短信</span>
+                        <div class="channel-thumb"><img src="img/icon_sms.webp" alt="手机短信" data-i18n-alt="手机短信"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="手机短信">手机短信</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
                         <div class="channel-thumb"><img src="img/icon_bark.webp" alt="Bark"></div>
@@ -702,12 +750,12 @@
                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Webhook</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_serverchan.webp" alt="Server酱"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Server酱</span>
+                        <div class="channel-thumb"><img src="img/icon_serverchan.webp" alt="Server酱" data-i18n-alt="Server酱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="Server酱">Server酱</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
-                        <div class="channel-thumb"><img src="img/icon_qmsg.webp" alt="QMsg酱"></div>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">QMsg酱</span>
+                        <div class="channel-thumb"><img src="img/icon_qmsg.webp" alt="QMsg酱" data-i18n-alt="QMsg酱"></div>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200" data-i18n="QMsg酱">QMsg酱</span>
                     </div>
                     <div class="channel-card bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm text-center">
                         <div class="channel-thumb"><img src="img/icon_pushplus.webp" alt="PushPlus"></div>
@@ -722,23 +770,23 @@
 
             <div class="relative">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center justify-center">
-                    <span class="bg-gradient-to-r from-brand-400 to-brand-600 text-white px-3 py-1 rounded-full text-sm mr-3 shadow-lg">Pro专属</span>
-                    高级通知渠道
+                    <span class="bg-gradient-to-r from-brand-400 to-brand-600 text-white px-3 py-1 rounded-full text-sm mr-3 shadow-lg" data-i18n="Pro专属">Pro专属</span>
+                    <span data-i18n="高级通知渠道">高级通知渠道</span>
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
                     <div class="channel-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
                         <div class="absolute top-2 right-2">
                             <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
                         </div>
-                        <div class="channel-thumb"><img src="img/icon_telegram.webp" alt="Telegram机器人"></div>
-                        <span class="text-sm font-bold text-gray-900 dark:text-white">Telegram机器人</span>
+                        <div class="channel-thumb"><img src="img/icon_telegram.webp" alt="Telegram机器人" data-i18n-alt="Telegram机器人"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white" data-i18n="Telegram机器人">Telegram机器人</span>
                     </div>
                     <div class="channel-card bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
                         <div class="absolute top-2 right-2">
                             <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
                         </div>
-                        <div class="channel-thumb"><img src="img/icon_discord.webp" alt="Discord机器人"></div>
-                        <span class="text-sm font-bold text-gray-900 dark:text-white">Discord机器人</span>
+                        <div class="channel-thumb"><img src="img/icon_discord.webp" alt="Discord机器人" data-i18n-alt="Discord机器人"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white" data-i18n="Discord机器人">Discord机器人</span>
                     </div>
                     <div class="channel-card bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-900/20 dark:to-cyan-800/20 p-4 rounded-2xl text-center relative overflow-hidden">
                         <div class="absolute top-2 right-2">
@@ -751,8 +799,8 @@
                         <div class="absolute top-2 right-2">
                             <i data-lucide="crown" class="w-4 h-4 text-yellow-500"></i>
                         </div>
-                        <div class="channel-thumb"><img src="img/icon_url_scheme.webp" alt="短信应用转发"></div>
-                        <span class="text-sm font-bold text-gray-900 dark:text-white">短信/应用转发</span>
+                        <div class="channel-thumb"><img src="img/icon_url_scheme.webp" alt="短信应用转发" data-i18n-alt="短信应用转发"></div>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white" data-i18n="短信/应用转发">短信/应用转发</span>
                     </div>
                 </div>
             </div>
@@ -762,8 +810,8 @@
     <section id="pricing" class="py-20 bg-white dark:bg-gray-900">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">选择适合您的方案</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-400">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4" data-i18n="选择适合您的方案">选择适合您的方案</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400" data-i18n="从个人使用到团队协作，从基础提醒到专业开发。">
                     从个人使用到团队协作，从基础提醒到专业开发。
                 </p>
             </div>
@@ -771,87 +819,87 @@
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-200 dark:border-gray-700">
                     <div class="mb-6">
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">普通用户</h3>
-                        <p class="text-gray-600 dark:text-gray-400">适合个人日常使用</p>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" data-i18n="普通用户">普通用户</h3>
+                        <p class="text-gray-600 dark:text-gray-400" data-i18n="适合个人日常使用">适合个人日常使用</p>
                     </div>
                     <div class="mb-6">
-                        <span class="text-4xl font-bold text-gray-900 dark:text-white">免费</span>
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white" data-i18n="免费">免费</span>
                     </div>
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300">单日创建待办上限 <strong>10个</strong></span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n-html="pricingFreeTaskLimitHtml">单日创建待办上限 <strong>10个</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300">团队共享上限 <strong>2个</strong></span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n-html="pricingFreeTeamLimitHtml">团队共享上限 <strong>2个</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300">桌面悬浮便签笔记</span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="桌面悬浮便签笔记">桌面悬浮便签笔记</span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300">社区交流版块互动</span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="社区交流版块互动">社区交流版块互动</span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300"><strong>17+</strong> 常用通知渠道</span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n-html="pricingFreeChannelsHtml"><strong>17+</strong> 常用通知渠道</span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-700 dark:text-gray-300">每日 <strong>1000条</strong> 渠道通知</span>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n-html="pricingFreeDailyNotifyHtml">每日 <strong>1000条</strong> 渠道通知</span>
                         </li>
                     </ul>
-                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors">
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors" data-i18n="免费开始">
                         免费开始
                     </a>
                 </div>
 
                 <div class="relative bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/20 dark:to-gray-800 rounded-3xl p-8 border-2 border-brand-500 shadow-xl shadow-brand-500/10">
                     <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span class="bg-gradient-to-r from-brand-500 to-brand-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                        <span class="bg-gradient-to-r from-brand-500 to-brand-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg" data-i18n="推荐">
                             推荐
                         </span>
                     </div>
                     <div class="mb-6">
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pro会员</h3>
-                        <p class="text-gray-600 dark:text-gray-400">专业用户与开发者的选择</p>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" data-i18n="Pro会员">Pro会员</h3>
+                        <p class="text-gray-600 dark:text-gray-400" data-i18n="专业用户与开发者的选择">专业用户与开发者的选择</p>
                     </div>
                     <div class="mb-6">
-                        <span class="text-4xl font-bold text-gray-900 dark:text-white">订阅解锁</span>
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white" data-i18n="订阅解锁">订阅解锁</span>
                     </div>
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">待办创建 <strong>无上限</strong></span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProTaskLimitHtml">待办创建 <strong>无上限</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">团队创建 <strong>无上限</strong></span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProTeamLimitHtml">团队创建 <strong>无上限</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">便签支持 <strong>图片上传</strong></span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProImageUploadHtml">便签支持 <strong>图片上传</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">社区 <strong>发帖权限</strong></span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProCommunityHtml">社区 <strong>发帖权限</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">解锁 <strong>全部高级渠道</strong></span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProChannelsHtml">解锁 <strong>全部高级渠道</strong></span>
                         </li>
                         <li class="flex items-start">
                             <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-gray-900 dark:text-white font-medium">每日 <strong>10000条</strong> 通知调度</span>
+                            <span class="text-gray-900 dark:text-white font-medium" data-i18n-html="pricingProNotifyHtml">每日 <strong>10000条</strong> 通知调度</span>
                         </li>
                         <li class="flex items-start bg-brand-100 dark:bg-brand-900/30 p-2 rounded-lg -mx-2">
                             <i data-lucide="code" class="w-5 h-5 text-brand-600 dark:text-brand-400 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span class="text-brand-900 dark:text-brand-300 font-bold">开发者API接口调用权限</span>
+                            <span class="text-brand-900 dark:text-brand-300 font-bold" data-i18n="开发者API接口调用权限">开发者API接口调用权限</span>
                         </li>
                     </ul>
-                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all transform hover:-translate-y-0.5">
+                    <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex w-full items-center justify-center py-3 px-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all transform hover:-translate-y-0.5" data-i18n="升级Pro">
                         升级Pro
                     </a>
                 </div>
@@ -864,27 +912,27 @@
             <div class="overflow-hidden rounded-[2.4rem] bg-slate-950 text-white shadow-soft">
                 <div class="grid gap-10 px-6 py-10 md:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-14 lg:py-14">
                     <div>
-                        <div class="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-orange-300">开发者 API</div>
-                        <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl">一套接口，把提醒能力嵌进你的业务流</h2>
-                        <p class="mt-5 text-base leading-8 text-slate-300">
+                        <div class="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-orange-300" data-i18n="开发者 API">开发者 API</div>
+                        <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl" data-i18n="一套接口，把提醒能力嵌进你的业务流">一套接口，把提醒能力嵌进你的业务流</h2>
+                        <p class="mt-5 text-base leading-8 text-slate-300" data-i18n="开发者 API 的叙述更聚焦到实际场景价值：运维告警、内部审批、排班通知、活动提醒都能直接调用叮办的聚合通知渠道。">
                             开发者 API 的叙述更聚焦到实际场景价值：运维告警、内部审批、排班通知、活动提醒都能直接调用叮办的聚合通知渠道。
                         </p>
                         <div class="mt-8 space-y-4">
                             <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                                 <i data-lucide="zap" class="h-5 w-5 text-orange-300"></i>
-                                <span class="text-sm text-slate-200">单用户最高支持 600 次/分钟调用频率</span>
+                                <span class="text-sm text-slate-200" data-i18n="单用户最高支持 600 次/分钟调用频率">单用户最高支持 600 次/分钟调用频率</span>
                             </div>
                             <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                                 <i data-lucide="shield-check" class="h-5 w-5 text-orange-300"></i>
-                                <span class="text-sm text-slate-200">Token 认证隔离用户权限，接入更安全</span>
+                                <span class="text-sm text-slate-200" data-i18n="Token 认证隔离用户权限，接入更安全">Token 认证隔离用户权限，接入更安全</span>
                             </div>
                             <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
                                 <i data-lucide="workflow" class="h-5 w-5 text-orange-300"></i>
-                                <span class="text-sm text-slate-200">支持 GET / POST，多渠道联合分发</span>
+                                <span class="text-sm text-slate-200" data-i18n="支持 GET / POST，多渠道联合分发">支持 GET / POST，多渠道联合分发</span>
                             </div>
 							<button onclick="openApiModal()" class="text-gray-100 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors font-medium flex items-center gap-1">
 												    <i data-lucide="terminal" class="w-4 h-4"></i>
-												    API调试
+												    <span data-i18n="API调试">API调试</span>
 							</button>
                         </div>
                     </div>
@@ -895,7 +943,7 @@
                             <span class="h-3 w-3 rounded-full bg-green-400"></span>
                             <span class="ml-3 text-xs text-slate-500">api-example.js</span>
                         </div>
-<pre class="overflow-x-auto text-sm leading-7 text-slate-200"><code>// 使用叮办 API 聚合发送通知
+<pre class="overflow-x-auto text-sm leading-7 text-slate-200"><code data-i18n-html="apiExampleCodeHtml">// 使用叮办 API 聚合发送通知
 const response = await fetch('/api/User/notify', {
   method: 'POST',
   headers: {
@@ -920,19 +968,19 @@ const result = await response.json();</code></pre>
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="overflow-hidden rounded-[2.4rem] bg-gradient-to-r from-brand-500 via-orange-500 to-amber-400 px-8 py-12 text-center text-white shadow-warm md:px-12">
                 <div class="mx-auto max-w-3xl">
-                    <div class="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-orange-50">开始体验</div>
-                    <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl">不再错过任何重要事项</h2>
-                    <p class="mt-5 text-lg leading-8 text-orange-50/90">
+                    <div class="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-orange-50" data-i18n="开始体验">开始体验</div>
+                    <h2 class="mt-5 text-3xl font-black tracking-tight md:text-5xl" data-i18n="不再错过任何重要事项">不再错过任何重要事项</h2>
+                    <p class="mt-5 text-lg leading-8 text-orange-50/90" data-i18n="从个人提醒到团队协作，从聚合通知到开发者 API，叮办把所有重要提醒集中在一个更可靠的触达中心。">
                         从个人提醒到团队协作，从聚合通知到开发者 API，叮办把所有重要提醒集中在一个更可靠的触达中心。
                     </p>
                     <div class="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
                         <a href="http://8.137.155.15:14335/" target="_blank" class="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-brand-600 shadow-lg transition hover:-translate-y-1">
                             <i data-lucide="external-link" class="mr-2 h-5 w-5"></i>
-                            访问 Web 端
+                            <span data-i18n="访问 Web 端">访问 Web 端</span>
                         </a>
                         <a href="#top" class="inline-flex items-center justify-center rounded-full border border-white/30 px-8 py-4 text-base font-semibold text-white transition hover:bg-white/10">
                             <i data-lucide="arrow-up" class="mr-2 h-5 w-5"></i>
-                            回到顶部 下载客户端
+                            <span data-i18n="回到顶部 下载客户端">回到顶部 下载客户端</span>
                         </a>
                     </div>
                 </div>
@@ -943,8 +991,8 @@ const result = await response.json();</code></pre>
     <section class="pb-24">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <div class="inline-flex rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 ring-1 ring-brand-100">软件快照</div>
-                <p class="mx-auto mt-5 max-w-3xl text-lg leading-8 text-gray-600 dark:text-gray-300">
+                <div class="inline-flex rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 ring-1 ring-brand-100" data-i18n="软件快照">软件快照</div>
+                <p class="mx-auto mt-5 max-w-3xl text-lg leading-8 text-gray-600 dark:text-gray-300" data-i18n="集中呈现列表、分组、时间线、月度总览与通知渠道等核心界面。">
                    集中呈现列表、分组、时间线、月度总览与通知渠道等核心界面。
                 </p>
             </div>
@@ -954,19 +1002,19 @@ const result = await response.json();</code></pre>
                     <article class="snapshot-slide" data-snapshot-slide>
                         <div class="snapshot-device-shell">
                             <div class="snapshot-device">
-                                <img src="pic/经典列表视图.jpg" alt="经典列表视图截图" loading="eager" fetchpriority="high">
+                                <img src="pic/经典列表视图.jpg" alt="经典列表视图截图" data-i18n-alt="经典列表视图截图" loading="eager" fetchpriority="high">
                             </div>
                         </div>
                         <div class="snapshot-copy">
-                            <div class="snapshot-kicker">01 / 05 · 经典列表</div>
-                            <h3 class="snapshot-title">事项进度一屏收拢，处理更直接</h3>
-                            <p class="snapshot-description">
+                            <div class="snapshot-kicker" data-i18n="01 / 05 · 经典列表">01 / 05 · 经典列表</div>
+                            <h3 class="snapshot-title" data-i18n="事项进度一屏收拢，处理更直接">事项进度一屏收拢，处理更直接</h3>
+                            <p class="snapshot-description" data-i18n="默认列表视图把待办状态、优先级和截止时间集中展示，适合快速浏览今日安排，也方便直接勾选完成。">
                                 默认列表视图把待办状态、优先级和截止时间集中展示，适合快速浏览今日安排，也方便直接勾选完成。
                             </p>
                             <div class="snapshot-chip-list">
-                                <span class="snapshot-chip">快速勾选</span>
-                                <span class="snapshot-chip">优先级聚合</span>
-                                <span class="snapshot-chip">日常清单</span>
+                                <span class="snapshot-chip" data-i18n="快速勾选">快速勾选</span>
+                                <span class="snapshot-chip" data-i18n="优先级聚合">优先级聚合</span>
+                                <span class="snapshot-chip" data-i18n="日常清单">日常清单</span>
                             </div>
                         </div>
                     </article>
@@ -974,19 +1022,19 @@ const result = await response.json();</code></pre>
                     <article class="snapshot-slide" data-snapshot-slide>
                         <div class="snapshot-device-shell">
                             <div class="snapshot-device">
-                                <img src="pic/timepage日期分组视图.jpg" alt="日期分组视图截图" loading="lazy">
+                                <img src="pic/timepage日期分组视图.jpg" alt="日期分组视图截图" data-i18n-alt="日期分组视图截图" loading="lazy">
                             </div>
                         </div>
                         <div class="snapshot-copy">
-                            <div class="snapshot-kicker">02 / 05 · 日期分组</div>
-                            <h3 class="snapshot-title">按日期拆分任务，近期安排更清晰</h3>
-                            <p class="snapshot-description">
+                            <div class="snapshot-kicker" data-i18n="02 / 05 · 日期分组">02 / 05 · 日期分组</div>
+                            <h3 class="snapshot-title" data-i18n="按日期拆分任务，近期安排更清晰">按日期拆分任务，近期安排更清晰</h3>
+                            <p class="snapshot-description" data-i18n="通过日期分组快速查看未来几天的任务堆叠情况，适合处理跨天事项和阶段性计划，避免临近提醒被遗漏。">
                                 通过日期分组快速查看未来几天的任务堆叠情况，适合处理跨天事项和阶段性计划，避免临近提醒被遗漏。
                             </p>
                             <div class="snapshot-chip-list">
-                                <span class="snapshot-chip">跨天规划</span>
-                                <span class="snapshot-chip">阶段安排</span>
-                                <span class="snapshot-chip">临期提醒</span>
+                                <span class="snapshot-chip" data-i18n="跨天规划">跨天规划</span>
+                                <span class="snapshot-chip" data-i18n="阶段安排">阶段安排</span>
+                                <span class="snapshot-chip" data-i18n="临期提醒">临期提醒</span>
                             </div>
                         </div>
                     </article>
@@ -994,19 +1042,19 @@ const result = await response.json();</code></pre>
                     <article class="snapshot-slide" data-snapshot-slide>
                         <div class="snapshot-device-shell">
                             <div class="snapshot-device">
-                                <img src="pic/timepage日期时间线视图.jpg" alt="日期时间线视图截图" loading="lazy">
+                                <img src="pic/timepage日期时间线视图.jpg" alt="日期时间线视图截图" data-i18n-alt="日期时间线视图截图" loading="lazy">
                             </div>
                         </div>
                         <div class="snapshot-copy">
-                            <div class="snapshot-kicker">03 / 05 · 时间线视图</div>
-                            <h3 class="snapshot-title">一天的节奏顺着时间线自然展开</h3>
-                            <p class="snapshot-description">
+                            <div class="snapshot-kicker" data-i18n="03 / 05 · 时间线视图">03 / 05 · 时间线视图</div>
+                            <h3 class="snapshot-title" data-i18n="一天的节奏顺着时间线自然展开">一天的节奏顺着时间线自然展开</h3>
+                            <p class="snapshot-description" data-i18n="对同一天内的任务、提醒和时间冲突进行时间线排布，能更直观看到当天节奏，适合高频提醒与密集事务场景。">
                                 对同一天内的任务、提醒和时间冲突进行时间线排布，能更直观看到当天节奏，适合高频提醒与密集事务场景。
                             </p>
                             <div class="snapshot-chip-list">
-                                <span class="snapshot-chip">日程节奏</span>
-                                <span class="snapshot-chip">时间冲突</span>
-                                <span class="snapshot-chip">高频提醒</span>
+                                <span class="snapshot-chip" data-i18n="日程节奏">日程节奏</span>
+                                <span class="snapshot-chip" data-i18n="时间冲突">时间冲突</span>
+                                <span class="snapshot-chip" data-i18n="高频提醒">高频提醒</span>
                             </div>
                         </div>
                     </article>
@@ -1014,19 +1062,19 @@ const result = await response.json();</code></pre>
                     <article class="snapshot-slide" data-snapshot-slide>
                         <div class="snapshot-device-shell">
                             <div class="snapshot-device">
-                                <img src="pic/月度总览页面.jpg" alt="月度总览页面截图" loading="lazy">
+                                <img src="pic/月度总览页面.jpg" alt="月度总览页面截图" data-i18n-alt="月度总览页面截图" loading="lazy">
                             </div>
                         </div>
                         <div class="snapshot-copy">
-                            <div class="snapshot-kicker">04 / 05 · 月度总览</div>
-                            <h3 class="snapshot-title">整月任务热区，忙闲分布一眼可见</h3>
-                            <p class="snapshot-description">
+                            <div class="snapshot-kicker" data-i18n="04 / 05 · 月度总览">04 / 05 · 月度总览</div>
+                            <h3 class="snapshot-title" data-i18n="整月任务热区，忙闲分布一眼可见">整月任务热区，忙闲分布一眼可见</h3>
+                            <p class="snapshot-description" data-i18n="月度总览适合做长期回顾和排期观察，能迅速识别任务密集日、空档期，以及更适合安排新计划的时间窗口。">
                                 月度总览适合做长期回顾和排期观察，能迅速识别任务密集日、空档期，以及更适合安排新计划的时间窗口。
                             </p>
                             <div class="snapshot-chip-list">
-                                <span class="snapshot-chip">月历总览</span>
-                                <span class="snapshot-chip">长期规划</span>
-                                <span class="snapshot-chip">节奏观察</span>
+                                <span class="snapshot-chip" data-i18n="月历总览">月历总览</span>
+                                <span class="snapshot-chip" data-i18n="长期规划">长期规划</span>
+                                <span class="snapshot-chip" data-i18n="节奏观察">节奏观察</span>
                             </div>
                         </div>
                     </article>
@@ -1034,39 +1082,39 @@ const result = await response.json();</code></pre>
                     <article class="snapshot-slide" data-snapshot-slide>
                         <div class="snapshot-device-shell">
                             <div class="snapshot-device">
-                                <img src="pic/通知渠道.jpg" alt="通知渠道截图" loading="lazy">
+                                <img src="pic/通知渠道.jpg" alt="通知渠道截图" data-i18n-alt="通知渠道截图" loading="lazy">
                             </div>
                         </div>
                         <div class="snapshot-copy">
-                            <div class="snapshot-kicker">05 / 05 · 通知渠道</div>
-                            <h3 class="snapshot-title">触达方式集中配置，提醒不再只停留在 App 内</h3>
-                            <p class="snapshot-description">
+                            <div class="snapshot-kicker" data-i18n="05 / 05 · 通知渠道">05 / 05 · 通知渠道</div>
+                            <h3 class="snapshot-title" data-i18n="触达方式集中配置，提醒不再只停留在 App 内">触达方式集中配置，提醒不再只停留在 App 内</h3>
+                            <p class="snapshot-description" data-i18n="将不同通知渠道统一收口到同一界面，便于按场景选择推送方式，强化关键提醒的触达成功率。">
                                 将不同通知渠道统一收口到同一界面，便于按场景选择推送方式，强化关键提醒的触达成功率。
                             </p>
                             <div class="snapshot-chip-list">
-                                <span class="snapshot-chip">渠道切换</span>
-                                <span class="snapshot-chip">统一配置</span>
-                                <span class="snapshot-chip">强提醒触达</span>
+                                <span class="snapshot-chip" data-i18n="渠道切换">渠道切换</span>
+                                <span class="snapshot-chip" data-i18n="统一配置">统一配置</span>
+                                <span class="snapshot-chip" data-i18n="强提醒触达">强提醒触达</span>
                             </div>
                         </div>
                     </article>
                 </div>
 
                 <div class="snapshot-controls">
-                    <button type="button" class="snapshot-nav" data-snapshot-prev aria-label="上一张快照">
+                    <button type="button" class="snapshot-nav" data-snapshot-prev aria-label="上一张快照" data-i18n-aria-label="上一张快照">
                         <i data-lucide="chevron-left" class="h-5 w-5"></i>
                     </button>
-                    <button type="button" class="snapshot-nav" data-snapshot-next aria-label="下一张快照">
+                    <button type="button" class="snapshot-nav" data-snapshot-next aria-label="下一张快照" data-i18n-aria-label="下一张快照">
                         <i data-lucide="chevron-right" class="h-5 w-5"></i>
                     </button>
                 </div>
 
-                <div class="snapshot-dots" aria-label="软件快照轮播分页">
-                    <button type="button" class="snapshot-dot is-active" data-snapshot-dot="0" aria-label="切换到经典列表视图" aria-pressed="true"></button>
-                    <button type="button" class="snapshot-dot" data-snapshot-dot="1" aria-label="切换到日期分组视图" aria-pressed="false"></button>
-                    <button type="button" class="snapshot-dot" data-snapshot-dot="2" aria-label="切换到日期时间线视图" aria-pressed="false"></button>
-                    <button type="button" class="snapshot-dot" data-snapshot-dot="3" aria-label="切换到月度总览页面" aria-pressed="false"></button>
-                    <button type="button" class="snapshot-dot" data-snapshot-dot="4" aria-label="切换到通知渠道" aria-pressed="false"></button>
+                <div class="snapshot-dots" aria-label="软件快照轮播分页" data-i18n-aria-label="软件快照轮播分页">
+                    <button type="button" class="snapshot-dot is-active" data-snapshot-dot="0" aria-label="切换到经典列表视图" data-i18n-aria-label="切换到经典列表视图" aria-pressed="true"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="1" aria-label="切换到日期分组视图" data-i18n-aria-label="切换到日期分组视图" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="2" aria-label="切换到日期时间线视图" data-i18n-aria-label="切换到日期时间线视图" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="3" aria-label="切换到月度总览页面" data-i18n-aria-label="切换到月度总览页面" aria-pressed="false"></button>
+                    <button type="button" class="snapshot-dot" data-snapshot-dot="4" aria-label="切换到通知渠道" data-i18n-aria-label="切换到通知渠道" aria-pressed="false"></button>
                 </div>
             </div>
         </div>
@@ -1077,25 +1125,333 @@ const result = await response.json();</code></pre>
             <div>
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-brand-100">
-                        <img src="img/dotnet_bot.png" alt="叮办 Logo" class="h-full w-full object-cover">
+                        <img src="img/dotnet_bot.png" alt="叮办 Logo" data-i18n-alt="叮办 Logo" class="h-full w-full object-cover">
                     </div>
                     <div>
-                        <div class="text-lg font-black">叮办</div>
-                        <div class="text-sm text-gray-500">让提醒跨App追着你跑</div>
+                        <div class="text-lg font-black" data-i18n="叮办">叮办</div>
+                        <div class="text-sm text-gray-500" data-i18n="让提醒跨App追着你跑">让提醒跨App追着你跑</div>
                     </div>
                 </div>
-                <p class="mt-4 max-w-md text-sm leading-7 text-gray-600">让提醒更贴心，协作更高效。</p>
+                <p class="mt-4 max-w-md text-sm leading-7 text-gray-600" data-i18n="让提醒更贴心，协作更高效。">让提醒更贴心，协作更高效。</p>
             </div>
             <div class="text-sm text-gray-500">
                 <div>Windows · macOS · Android · iOS · Web</div>
-                <div class="mt-2">© 2026 叮办 All rights reserved.</div>
+                <div class="mt-2" data-i18n="© 2026 叮办 All rights reserved.">© 2026 叮办 All rights reserved.</div>
 				 <div class="mt-2"><span style="font-size: 1.5rem;">✉ </span> ️2424379490@qq.com</div>
             </div>
         </div>
     </footer>
 
     <script>
-        lucide.createIcons();
+        const LANGUAGE_STORAGE_KEY = 'dingban-language';
+        let currentLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'en' ? 'en' : 'zh';
+
+        const translations = {
+            zh: {
+                heroTitleHtml: '让提醒更贴心，<br class="hidden sm:block">让协作更高效',
+                heroDescriptionHtml: '叮办把 <span class="font-semibold text-brand-600 dark:text-brand-400">跨平台待办</span>、<span class="font-semibold text-gray-900 dark:text-white">17+ 聚合推送</span> 和强提醒体验整合到一起，让重要事项真正做到“跨App追着你跑”。',
+                pricingFreeTaskLimitHtml: '单日创建待办上限 <strong>10个</strong>',
+                pricingFreeTeamLimitHtml: '团队共享上限 <strong>2个</strong>',
+                pricingFreeChannelsHtml: '<strong>17+</strong> 常用通知渠道',
+                pricingFreeDailyNotifyHtml: '每日 <strong>1000条</strong> 渠道通知',
+                pricingProTaskLimitHtml: '待办创建 <strong>无上限</strong>',
+                pricingProTeamLimitHtml: '团队创建 <strong>无上限</strong>',
+                pricingProImageUploadHtml: '便签支持 <strong>图片上传</strong>',
+                pricingProCommunityHtml: '社区 <strong>发帖权限</strong>',
+                pricingProChannelsHtml: '解锁 <strong>全部高级渠道</strong>',
+                pricingProNotifyHtml: '每日 <strong>10000条</strong> 通知调度',
+                apiExampleCodeHtml: `// 使用叮办 API 聚合发送通知
+const response = await fetch('/api/User/notify', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    title: '系统告警',
+    description: '服务器 CPU 使用率超过 90%',
+    channels: ['wework_robot', 'dingtalk_bot', 'telegram']
+  })
+});
+
+const result = await response.json();`,
+                apiNotifyPayloadCodeHtml: `{
+  "token": "JWT_TOKEN",  // 如使用 Header 认证可省略
+  "title": "string",
+  "description": "string",
+  "channels": ["wework_robot", "telegram"]
+}`,
+                smsWarningHtml: '<code>sms</code> 为本地Android渠道，服务端调用请勿使用'
+            },
+            en: {
+                '叮办 - 让提醒跨App追着你跑': 'DingBan - Make reminders chase you across apps',
+                '叮办 Logo': 'DingBan logo',
+                '叮办': 'DingBan',
+                '核心功能': 'Features',
+                '通知渠道': 'Channels',
+                '会员方案': 'Pricing',
+                '开发者API': 'Developer API',
+                'API调试': 'API Playground',
+                '切换语言': 'Switch language',
+                '切换深色模式': 'Toggle dark mode',
+                '立即体验-Web端': 'Try Web App Now',
+                '短注意·精准触发': 'Timely Alerts · Precise Triggers',
+                heroTitleHtml: 'Smarter reminders,<br class="hidden sm:block">smoother collaboration',
+                heroDescriptionHtml: 'DingBan brings <span class="font-semibold text-brand-600 dark:text-brand-400">cross-platform tasks</span>, <span class="font-semibold text-gray-900 dark:text-white">17+ unified channels</span>, and stronger reminder delivery together so important tasks truly follow you across apps.',
+                '三端实时同步': 'Real-time sync everywhere',
+                'PC、移动、Web 一处更新全端同步': 'Update once and stay synced across desktop, mobile, and web.',
+                '强提醒触达': 'Powerful reminder delivery',
+                '弹窗、锁屏、振动、渠道通知同时覆盖': 'Pop-ups, lock screen alerts, vibration, and channel notifications all work together.',
+                '团队共享提醒': 'Shared team reminders',
+                '多人协作仍保持任务边界清晰': 'Keep task ownership clear even when multiple people collaborate.',
+                'PC · 移动 · Web': 'Desktop · Mobile · Web',
+                '无缝协同的提醒主控台': 'A seamless reminder command center',
+                '手机、电脑、网页实时同步，最小化或锁屏也不错过提醒。': 'Stay synced across phone, desktop, and web in real time, even when minimized or locked.',
+                '每天': 'Daily',
+                '每周': 'Weekly',
+                '每月': 'Monthly',
+                '自定义分钟': 'Custom minutes',
+                '聚合能力': 'Unified reach',
+                '17+ 通知渠道': '17+ channels',
+                '核心亮点': 'Highlights',
+                '从个人日程到团队协作，从单次提醒到循环任务，叮办提供完整的强提醒与待办管理体验。': 'From personal schedules to team workflows, DingBan delivers a complete task and high-attention reminder experience.',
+                '灵活循环提醒': 'Flexible recurring reminders',
+                '支持每天、每周、每月固定日期循环，也可设置随机时间范围，完美适配久坐、喝水等习惯场景。': 'Schedule daily, weekly, or monthly recurrences on fixed dates, or use random time windows for habits like stretching and drinking water.',
+                '多维度视图': 'Multi-view planning',
+                '月度总览、时间轴、周视图、日视图自由切换，侧边栏快速跳转，待办规划一目了然。': 'Switch freely between monthly, timeline, weekly, and daily views, with fast sidebar jumps that keep planning clear.',
+                '全平台同步': 'Cross-platform sync',
+                'Windows、macOS、Android、iOS、Web 多端实时同步，断网时也可借助本地缓存继续查看任务。': 'Sync in real time across Windows, macOS, Android, iOS, and Web, with local cache support when offline.',
+                '社区互动': 'Community engagement',
+                '内置社区板块，支持浏览、点赞、评论、收藏。Pro 用户还可发帖与管理个人内容。': 'The built-in community supports browsing, likes, comments, and favorites. Pro users can also post and manage their own content.',
+                '团队共享': 'Team sharing',
+                '创建团队共享分组，组内任务全员同步提醒，成员只操作自己的待办，协作边界清晰。': 'Create shared team groups, sync reminders for everyone, and keep each member focused on their own tasks.',
+                '桌面便签': 'Desktop sticky notes',
+                '支持桌面悬浮置顶便签，Pro 用户可上传图片，重要灵感与资料都能随手记录。': 'Pin floating desktop notes. Pro users can upload images and capture ideas or reference material instantly.',
+                '17+ 聚合通知渠道': '17+ Unified Notification Channels',
+                '无论您习惯使用哪种工具，叮办都能触达': 'No matter which tool you prefer, DingBan can reach it.',
+                '常用渠道': 'Popular Channels',
+                '全员可用': 'Available to all users',
+                '钉钉群机器人': 'DingTalk Group Bot',
+                '钉钉企业机器人': 'DingTalk Enterprise Bot',
+                '钉钉企业': 'DingTalk Enterprise',
+                '企业微信群机器人': 'WeCom Group Bot',
+                '企业微信': 'WeCom',
+                '企业微信应用': 'WeCom App',
+                '飞书群机器人': 'Feishu Group Bot',
+                '飞书': 'Feishu',
+                '飞书应用': 'Feishu App',
+                'QQ邮箱': 'QQ Mail',
+                '手机短信': 'SMS',
+                '邮件': 'Email',
+                '短信': 'SMS',
+                'Server酱': 'ServerChan',
+                'QMsg酱': 'QMsg',
+                'Pro专属': 'Pro Only',
+                '高级通知渠道': 'Advanced channels',
+                'Telegram机器人': 'Telegram Bot',
+                'Discord机器人': 'Discord Bot',
+                '短信应用转发': 'SMS/App Forwarding',
+                '短信/应用转发': 'SMS/App Forwarding',
+                '选择适合您的方案': 'Choose the plan that fits you',
+                '从个人使用到团队协作，从基础提醒到专业开发。': 'From personal use to team collaboration, from basic reminders to developer workflows.',
+                '普通用户': 'Standard Users',
+                '适合个人日常使用': 'Great for everyday personal use',
+                '免费': 'Free',
+                pricingFreeTaskLimitHtml: 'Up to <strong>10</strong> tasks created per day',
+                pricingFreeTeamLimitHtml: 'Up to <strong>2</strong> shared groups',
+                '桌面悬浮便签笔记': 'Floating desktop notes',
+                '社区交流版块互动': 'Community interactions',
+                pricingFreeChannelsHtml: '<strong>17+</strong> popular notification channels',
+                pricingFreeDailyNotifyHtml: 'Up to <strong>1,000</strong> channel notifications per day',
+                '免费开始': 'Start for free',
+                '推荐': 'Recommended',
+                'Pro会员': 'Pro Membership',
+                '专业用户与开发者的选择': 'Built for power users and developers',
+                '订阅解锁': 'Unlock with subscription',
+                pricingProTaskLimitHtml: 'Task creation <strong>unlimited</strong>',
+                pricingProTeamLimitHtml: 'Team creation <strong>unlimited</strong>',
+                pricingProImageUploadHtml: 'Sticky notes with <strong>image uploads</strong>',
+                pricingProCommunityHtml: 'Community <strong>posting privileges</strong>',
+                pricingProChannelsHtml: 'Unlock <strong>all advanced channels</strong>',
+                pricingProNotifyHtml: 'Up to <strong>10,000</strong> scheduled notifications per day',
+                '开发者API接口调用权限': 'Developer API access',
+                '升级Pro': 'Upgrade to Pro',
+                '开发者 API': 'Developer API',
+                '一套接口，把提醒能力嵌进你的业务流': 'One API, reminders embedded in your workflow',
+                '开发者 API 的叙述更聚焦到实际场景价值：运维告警、内部审批、排班通知、活动提醒都能直接调用叮办的聚合通知渠道。': 'The Developer API is built for practical workflows like ops alerts, internal approvals, shift notifications, and campaign reminders, all powered by DingBan’s unified channels.',
+                '单用户最高支持 600 次/分钟调用频率': 'Supports up to 600 requests per minute for a single user.',
+                'Token 认证隔离用户权限，接入更安全': 'Token-based authentication isolates user permissions for safer integration.',
+                '支持 GET / POST，多渠道联合分发': 'Supports GET/POST with multi-channel dispatch.',
+                apiExampleCodeHtml: `// Use the DingBan API to send a unified notification
+const response = await fetch('/api/User/notify', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    title: 'System Alert',
+    description: 'Server CPU usage exceeded 90%',
+    channels: ['wework_robot', 'dingtalk_bot', 'telegram']
+  })
+});
+
+const result = await response.json();`,
+                '开始体验': 'Get Started',
+                '不再错过任何重要事项': 'Never miss anything important again',
+                '从个人提醒到团队协作，从聚合通知到开发者 API，叮办把所有重要提醒集中在一个更可靠的触达中心。': 'From personal reminders to team workflows, from unified notifications to the Developer API, DingBan brings every important reminder into a more reliable delivery hub.',
+                '访问 Web 端': 'Open Web App',
+                '回到顶部 下载客户端': 'Back to top for downloads',
+                '软件快照': 'Product snapshots',
+                '集中呈现列表、分组、时间线、月度总览与通知渠道等核心界面。': 'A focused look at the list, grouping, timeline, monthly overview, and notification channel interfaces.',
+                '经典列表视图截图': 'Classic list screenshot',
+                '01 / 05 · 经典列表': '01 / 05 · Classic List',
+                '事项进度一屏收拢，处理更直接': 'See task progress in one view and act faster',
+                '默认列表视图把待办状态、优先级和截止时间集中展示，适合快速浏览今日安排，也方便直接勾选完成。': 'The default list view surfaces status, priority, and due dates together, making it easy to scan today’s agenda and complete items quickly.',
+                '快速勾选': 'Quick complete',
+                '优先级聚合': 'Priority grouping',
+                '日常清单': 'Daily lists',
+                '日期分组视图截图': 'Date grouping screenshot',
+                '02 / 05 · 日期分组': '02 / 05 · Date Grouping',
+                '按日期拆分任务，近期安排更清晰': 'Split tasks by date for clearer near-term planning',
+                '通过日期分组快速查看未来几天的任务堆叠情况，适合处理跨天事项和阶段性计划，避免临近提醒被遗漏。': 'Date grouping helps you spot task buildup across the next few days, making cross-day work and phased plans easier to manage without missing close deadlines.',
+                '跨天规划': 'Cross-day planning',
+                '阶段安排': 'Phased planning',
+                '临期提醒': 'Upcoming reminders',
+                '日期时间线视图截图': 'Timeline screenshot',
+                '03 / 05 · 时间线视图': '03 / 05 · Timeline View',
+                '一天的节奏顺着时间线自然展开': 'Let the day unfold naturally on a timeline',
+                '对同一天内的任务、提醒和时间冲突进行时间线排布，能更直观看到当天节奏，适合高频提醒与密集事务场景。': 'Lay out tasks, reminders, and conflicts for the same day on a timeline to see the day’s rhythm more clearly in busy, high-frequency schedules.',
+                '日程节奏': 'Daily rhythm',
+                '时间冲突': 'Time conflicts',
+                '高频提醒': 'High-frequency reminders',
+                '月度总览页面截图': 'Monthly overview screenshot',
+                '04 / 05 · 月度总览': '04 / 05 · Monthly Overview',
+                '整月任务热区，忙闲分布一眼可见': 'See hot spots across the month at a glance',
+                '月度总览适合做长期回顾和排期观察，能迅速识别任务密集日、空档期，以及更适合安排新计划的时间窗口。': 'The monthly overview is ideal for long-range reviews and planning, helping you spot dense days, open windows, and better times for new work.',
+                '月历总览': 'Calendar overview',
+                '长期规划': 'Long-term planning',
+                '节奏观察': 'Rhythm tracking',
+                '通知渠道截图': 'Notification channels screenshot',
+                '05 / 05 · 通知渠道': '05 / 05 · Notification Channels',
+                '触达方式集中配置，提醒不再只停留在 App 内': 'Configure delivery methods in one place so reminders go beyond the app',
+                '将不同通知渠道统一收口到同一界面，便于按场景选择推送方式，强化关键提醒的触达成功率。': 'Bring different channels into one interface, choose delivery methods by scenario, and improve the success rate of critical reminders.',
+                '渠道切换': 'Channel switching',
+                '统一配置': 'Unified config',
+                '上一张快照': 'Previous snapshot',
+                '下一张快照': 'Next snapshot',
+                '软件快照轮播分页': 'Product snapshots pagination',
+                '切换到经典列表视图': 'Go to the classic list view',
+                '切换到日期分组视图': 'Go to the date grouping view',
+                '切换到日期时间线视图': 'Go to the timeline view',
+                '切换到月度总览页面': 'Go to the monthly overview',
+                '切换到通知渠道': 'Go to notification channels',
+                '让提醒跨App追着你跑': 'Make reminders chase you across apps',
+                '让提醒更贴心，协作更高效。': 'Thoughtful reminders, efficient collaboration.',
+                '© 2026 叮办 All rights reserved.': '© 2026 DingBan. All rights reserved.',
+                'API 调试工具': 'API Playground',
+                '在线测试 · 自动获取Token · 可视化选择渠道': 'Live testing · automatic token fetch · visual channel selection',
+                '重置': 'Reset',
+                '获取 Token': 'Get Token',
+                '用户名': 'Username',
+                '密码': 'Password',
+                '登录获取 Token': 'Sign in to get token',
+                '获取成功': 'Token ready',
+                '复制': 'Copy',
+                '发送通知': 'Send notification',
+                '通知标题': 'Notification title',
+                '通知内容描述...': 'Notification body...',
+                'Token传递方式：': 'Token delivery:',
+                '未选择渠道（将使用用户默认配置）': 'No channel selected (uses the user\'s default configuration)',
+                '选择通知渠道': 'Choose notification channels',
+                '清空': 'Clear',
+                '搜索渠道...': 'Search channels...',
+                smsWarningHtml: '<code>sms</code> is a local Android channel and should not be used from the server.',
+                '支持 GET/POST': 'GET/POST supported',
+                '17+ 渠道': '17+ channels',
+                '600次/分钟': '600 req/min',
+                '查看完整文档': 'View full docs',
+                'API 完整文档': 'Full API docs',
+                '认证方式': 'Authentication',
+                '支持以下三种方式传递 Token，优先级依次递减：': 'Token can be passed in the following three ways, in descending priority:',
+                '接口端点': 'Endpoints',
+                '获取用户 JWT Token': 'Get a user JWT token',
+                '发送通知，channels 为可选，不指定则使用用户默认配置': 'Send a notification. `channels` is optional; if omitted, the user\'s default configuration is used.',
+                apiNotifyPayloadCodeHtml: `{
+  "token": "JWT_TOKEN",  // Omit when using header authentication
+  "title": "string",
+  "description": "string",
+  "channels": ["wework_robot", "telegram"]
+}`,
+                'Channels 标识符': 'Channel identifiers',
+                '标识符': 'Identifier',
+                '说明': 'Description',
+                '不可用': 'Unavailable',
+                '登录中...': 'Signing in...',
+                '登录成功': 'Signed in',
+                '登录失败': 'Sign in failed',
+                '重新登录': 'Sign in again',
+                '已复制': 'Copied',
+                '请输入用户名和密码': 'Please enter a username and password.',
+                '请输入通知标题': 'Please enter a notification title.',
+                '发送中...': 'Sending...',
+                '发送成功': 'Sent successfully',
+                '发送失败': 'Send failed'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLanguage]?.[key] ?? translations.zh?.[key] ?? key;
+        }
+
+        function updateLanguageToggle() {
+            document.querySelectorAll('[data-language-option]').forEach((option) => {
+                option.classList.toggle('is-active', option.dataset.languageOption === currentLanguage);
+            });
+        }
+
+        function applyTranslations() {
+            document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'zh-CN';
+            document.title = t('叮办 - 让提醒跨App追着你跑');
+
+            document.querySelectorAll('[data-i18n]').forEach((element) => {
+                element.textContent = t(element.dataset.i18n);
+            });
+
+            document.querySelectorAll('[data-i18n-html]').forEach((element) => {
+                element.innerHTML = t(element.dataset.i18nHtml);
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+                element.setAttribute('placeholder', t(element.dataset.i18nPlaceholder));
+            });
+
+            document.querySelectorAll('[data-i18n-title]').forEach((element) => {
+                element.setAttribute('title', t(element.dataset.i18nTitle));
+            });
+
+            document.querySelectorAll('[data-i18n-alt]').forEach((element) => {
+                element.setAttribute('alt', t(element.dataset.i18nAlt));
+            });
+
+            document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+                element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
+            });
+
+            updateLanguageToggle();
+
+            if (typeof window.renderApiInterface === 'function') {
+                window.renderApiInterface();
+            }
+
+            lucide.createIcons();
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+            applyTranslations();
+        }
 
         function toggleDarkMode() {
             if (document.documentElement.classList.contains('dark')) {
@@ -1107,46 +1463,40 @@ const result = await response.json();</code></pre>
             }
         }
 
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        function initPageMotion() {
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
             });
-        });
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
             });
-        }, {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        });
 
-        document.querySelectorAll('.feature-card, .channel-card').forEach((el, index) => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = `opacity 0.6s ease ${index * 0.05}s, transform 0.6s ease ${index * 0.05}s`;
-            observer.observe(el);
-        });
+            document.querySelectorAll('.feature-card, .channel-card').forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = `opacity 0.6s ease ${index * 0.05}s, transform 0.6s ease ${index * 0.05}s`;
+                observer.observe(el);
+            });
 
-        (function initSnapshotCarousel() {
             const carousel = document.querySelector('[data-snapshot-carousel]');
             if (!carousel) {
                 return;
@@ -1160,12 +1510,13 @@ const result = await response.json();</code></pre>
             if (!track || slides.length === 0 || !prevButton || !nextButton) {
                 return;
             }
+
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const autoplayDelay = 4200;
             let activeIndex = 0;
             let autoplayTimer = null;
 
-            function render() {
+            function renderCarousel() {
                 track.style.transform = `translateX(-${activeIndex * 100}%)`;
 
                 slides.forEach((slide, index) => {
@@ -1199,7 +1550,7 @@ const result = await response.json();</code></pre>
 
             function goTo(index, resetAutoplay = true) {
                 activeIndex = (index + slides.length) % slides.length;
-                render();
+                renderCarousel();
 
                 if (resetAutoplay) {
                     startAutoplay();
@@ -1227,9 +1578,26 @@ const result = await response.json();</code></pre>
                 }
             });
 
-            render();
+            renderCarousel();
             startAutoplay();
-        })();
+        }
+
+        window.toggleLanguage = toggleLanguage;
+        window.toggleDarkMode = toggleDarkMode;
+        window.translateText = t;
+        window.getCurrentLanguage = () => currentLanguage;
+        window.applyPageTranslations = applyTranslations;
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPageMotion();
+            applyTranslations();
+        });
     </script>
 	<!-- API 调试与说明弹窗 -->
 	<div id="apiModal" class="fixed inset-0 z-[100] hidden">
@@ -1245,12 +1613,12 @@ const result = await response.json();</code></pre>
 	                        <i data-lucide="code-2" class="w-5 h-5"></i>
 	                    </div>
 	                    <div>
-	                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">API 调试工具</h3>
-	                        <p class="text-xs text-gray-500 dark:text-gray-400">在线测试 · 自动获取Token · 可视化选择渠道</p>
+	                        <h3 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="API 调试工具">API 调试工具</h3>
+	                        <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="在线测试 · 自动获取Token · 可视化选择渠道">在线测试 · 自动获取Token · 可视化选择渠道</p>
 	                    </div>
 	                </div>
 	                <div class="flex items-center gap-2">
-	                    <button onclick="resetApiForm()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors" title="重置">
+	                    <button onclick="resetApiForm()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors" title="重置" data-i18n-title="重置">
 	                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
 	                    </button>
 	                    <button onclick="closeApiModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -1269,22 +1637,22 @@ const result = await response.json();</code></pre>
 	                    <div class="space-y-3">
 	                        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
 	                            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">1</span>
-	                            获取 Token
+	                            <span data-i18n="获取 Token">获取 Token</span>
 	                            <span class="text-xs font-normal text-gray-500 ml-auto">POST /api/Auth/login</span>
 	                        </div>
 	                        <div class="grid grid-cols-2 gap-3">
-	                            <input type="text" id="apiUsername" placeholder="用户名" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
-	                            <input type="password" id="apiPassword" placeholder="密码" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                            <input type="text" id="apiUsername" placeholder="用户名" data-i18n-placeholder="用户名" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                            <input type="password" id="apiPassword" placeholder="密码" data-i18n-placeholder="密码" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
 	                        </div>
 	                        <button onclick="apiLogin()" id="loginBtn" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2">
 	                            <i data-lucide="key" class="w-4 h-4"></i>
-	                            登录获取 Token
+	                            <span data-login-btn-text data-i18n="登录获取 Token">登录获取 Token</span>
 	                        </button>
 	                        <div id="tokenDisplay" class="hidden rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-3">
 	                            <div class="flex items-center justify-between mb-1">
-	                                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400">获取成功</span>
-	                                <button onclick="copyToken()" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-	                                    <i data-lucide="copy" class="w-3 h-3"></i> 复制
+	                                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400" data-i18n="获取成功">获取成功</span>
+	                                <button onclick="copyToken(event)" class="text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1" data-copy-btn>
+	                                    <i data-lucide="copy" class="w-3 h-3"></i> <span data-copy-btn-text data-i18n="复制">复制</span>
 	                                </button>
 	                            </div>
 	                            <code id="tokenValue" class="text-xs text-emerald-800 dark:text-emerald-300 break-all font-mono"></code>
@@ -1295,16 +1663,16 @@ const result = await response.json();</code></pre>
 	                    <div class="space-y-3 opacity-50 pointer-events-none transition-opacity" id="notifySection">
 	                        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
 	                            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">2</span>
-	                            发送通知
+	                            <span data-i18n="发送通知">发送通知</span>
 	                            <span class="text-xs font-normal text-gray-500 ml-auto">POST /api/User/notify</span>
 	                        </div>
 	                        
-	                        <input type="text" id="notifyTitle" placeholder="通知标题" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
-	                        <textarea id="notifyDesc" placeholder="通知内容描述..." rows="3" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white resize-none"></textarea>
+	                        <input type="text" id="notifyTitle" placeholder="通知标题" data-i18n-placeholder="通知标题" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+	                        <textarea id="notifyDesc" placeholder="通知内容描述..." data-i18n-placeholder="通知内容描述..." rows="3" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white resize-none"></textarea>
 	                        
 	                        <!-- Token传递方式 -->
 	                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
-	                            <span>Token传递方式：</span>
+	                            <span data-i18n="Token传递方式：">Token传递方式：</span>
 	                            <label class="flex items-center gap-1 cursor-pointer">
 	                                <input type="radio" name="tokenMode" value="header" checked class="text-brand-500">
 	                                <span>Authorization Header</span>
@@ -1317,12 +1685,12 @@ const result = await response.json();</code></pre>
 	
 	                        <!-- 已选渠道标签 -->
 	                        <div class="flex flex-wrap gap-2 min-h-[32px]" id="selectedChannels">
-	                            <span class="text-xs text-gray-400 italic">未选择渠道（将使用用户默认配置）</span>
+	                            <span class="text-xs text-gray-400 italic" data-i18n="未选择渠道（将使用用户默认配置）">未选择渠道（将使用用户默认配置）</span>
 	                        </div>
-	
+
 	                        <button onclick="sendNotify()" id="sendBtn" class="w-full py-3 bg-gradient-to-r from-brand-500 to-orange-500 hover:from-brand-600 hover:to-orange-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2">
 	                            <i data-lucide="send" class="w-4 h-4"></i>
-	                            发送通知
+	                            <span data-send-btn-text data-i18n="发送通知">发送通知</span>
 	                        </button>
 	                        
 	                        <div id="notifyResult" class="hidden rounded-xl p-3 text-sm"></div>
@@ -1335,14 +1703,14 @@ const result = await response.json();</code></pre>
 	                        <div class="flex items-center justify-between mb-4">
 	                            <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
 	                                <i data-lucide="radio" class="w-4 h-4 text-brand-500"></i>
-	                                选择通知渠道
+	                                <span data-i18n="选择通知渠道">选择通知渠道</span>
 	                            </h4>
-	                            <button onclick="clearChannels()" class="text-xs text-gray-500 hover:text-brand-500">清空</button>
+	                            <button onclick="clearChannels()" class="text-xs text-gray-500 hover:text-brand-500" data-i18n="清空">清空</button>
 	                        </div>
 	                        
 	                        <div class="relative mb-4">
 	                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-	                            <input type="text" id="channelFilter" placeholder="搜索渠道..." oninput="filterChannelGrid()" 
+	                            <input type="text" id="channelFilter" placeholder="搜索渠道..." data-i18n-placeholder="搜索渠道..." oninput="filterChannelGrid()" 
 	                                class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
 	                        </div>
 	
@@ -1353,7 +1721,7 @@ const result = await response.json();</code></pre>
 	                        <div class="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
 	                            <p class="text-xs text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
 	                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
-	                                <span><code>sms</code> 为本地Android渠道，服务端调用请勿使用</span>
+	                                <span data-i18n-html="smsWarningHtml"><code>sms</code> 为本地Android渠道，服务端调用请勿使用</span>
 	                            </p>
 	                        </div>
 	                    </div>
@@ -1364,12 +1732,12 @@ const result = await response.json();</code></pre>
 	            <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 px-6 py-4">
 	                <div class="flex items-center justify-between">
 	                    <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 支持 GET/POST</span>
-	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 17+ 渠道</span>
-	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> 600次/分钟</span>
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> <span data-i18n="支持 GET/POST">支持 GET/POST</span></span>
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> <span data-i18n="17+ 渠道">17+ 渠道</span></span>
+	                        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> <span data-i18n="600次/分钟">600次/分钟</span></span>
 	                    </div>
 	                    <button onclick="showApiDoc()" class="text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 font-medium flex items-center gap-1">
-	                        查看完整文档 <i data-lucide="external-link" class="w-3 h-3"></i>
+	                        <span data-i18n="查看完整文档">查看完整文档</span> <i data-lucide="external-link" class="w-3 h-3"></i>
 	                    </button>
 	                </div>
 	            </div>
@@ -1383,7 +1751,7 @@ const result = await response.json();</code></pre>
 	    <div class="absolute right-0 top-0 bottom-0 w-full max-w-2xl bg-white dark:bg-gray-900 shadow-2xl transform translate-x-full transition-transform duration-300" id="apiDocContent">
 	        <div class="h-full flex flex-col">
 	            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-	                <h3 class="text-lg font-bold text-gray-900 dark:text-white">API 完整文档</h3>
+	                <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="API 完整文档">API 完整文档</h3>
 	                <button onclick="closeApiDoc()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
 	                    <i data-lucide="x" class="w-5 h-5"></i>
 	                </button>
@@ -1391,8 +1759,8 @@ const result = await response.json();</code></pre>
 	            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-sm">
 	                <!-- 文档内容 -->
 	                <section>
-	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">认证方式</h4>
-	                    <p class="text-gray-600 dark:text-gray-400 mb-3">支持以下三种方式传递 Token，优先级依次递减：</p>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base" data-i18n="认证方式">认证方式</h4>
+	                    <p class="text-gray-600 dark:text-gray-400 mb-3" data-i18n="支持以下三种方式传递 Token，优先级依次递减：">支持以下三种方式传递 Token，优先级依次递减：</p>
 	                    <div class="space-y-2">
 	                        <div class="p-3 rounded-lg bg-slate-950 text-slate-300 font-mono text-xs">
 	                            Authorization: Bearer YOUR_TOKEN<br>
@@ -1403,20 +1771,20 @@ const result = await response.json();</code></pre>
 	                </section>
 	                
 	                <section>
-	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">接口端点</h4>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base" data-i18n="接口端点">接口端点</h4>
 	                    <div class="space-y-3">
 	                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
 	                            <div class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-b border-gray-200 dark:border-gray-700 font-mono text-xs text-emerald-700 dark:text-emerald-400">POST /api/Auth/login</div>
 	                            <div class="p-4 text-xs text-gray-600 dark:text-gray-400">
-	                                获取用户 JWT Token<br>
+	                                <span data-i18n="获取用户 JWT Token">获取用户 JWT Token</span><br>
 	                                Body: { "userName": "string", "password": "string" }
 	                            </div>
 	                        </div>
 	                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
 	                            <div class="px-4 py-2 bg-brand-50 dark:bg-brand-900/20 border-b border-gray-200 dark:border-gray-700 font-mono text-xs text-brand-700 dark:text-brand-400">POST /api/User/notify</div>
 	                            <div class="p-4 text-xs text-gray-600 dark:text-gray-400 space-y-2">
-	                                <p>发送通知，channels 为可选，不指定则使用用户默认配置</p>
-	                                <pre class="bg-slate-950 text-slate-300 p-3 rounded-lg overflow-x-auto">{
+	                                <p data-i18n="发送通知，channels 为可选，不指定则使用用户默认配置">发送通知，channels 为可选，不指定则使用用户默认配置</p>
+	                                <pre class="bg-slate-950 text-slate-300 p-3 rounded-lg overflow-x-auto" data-i18n-html="apiNotifyPayloadCodeHtml">{
 	  "token": "JWT_TOKEN",  // 如使用 Header 认证可省略
 	  "title": "string",
 	  "description": "string",
@@ -1428,11 +1796,11 @@ const result = await response.json();</code></pre>
 	                </section>
 	
 	                <section>
-	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base">Channels 标识符</h4>
+	                    <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-base" data-i18n="Channels 标识符">Channels 标识符</h4>
 	                    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 	                        <table class="w-full text-xs">
 	                            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-	                                <tr><th class="px-3 py-2 text-left">标识符</th><th class="px-3 py-2 text-left">说明</th></tr>
+	                                <tr><th class="px-3 py-2 text-left" data-i18n="标识符">标识符</th><th class="px-3 py-2 text-left" data-i18n="说明">说明</th></tr>
 	                            </thead>
 	                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-600 dark:text-gray-400" id="docChannelTable">
 	                                <!-- JS填充 -->
@@ -1449,46 +1817,199 @@ const result = await response.json();</code></pre>
 		const API_BASE = 'http://8.137.155.15:8000';
 		let currentToken = '';
 		let selectedChannels = new Set();
+		let loginButtonState = 'default';
+		let sendButtonState = 'default';
+		let copyButtonState = 'default';
+		let notifyResultState = null;
+		let notifyResultPayload = null;
 		
 		const channelsData = [
-		    { id: 'dingtalk_group', name: '钉钉群机器人', icon: 'img/icon_dingtalk.webp', color: 'bg-blue-50 text-blue-700' },
-		    { id: 'dingtalk_inner', name: '钉钉企业', icon: 'img/icon_dingtalk_inner.webp', color: 'bg-blue-50 text-blue-700' },
-		    { id: 'wework_robot', name: '企业微信', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700' },
-		    { id: 'wework_agent', name: '企业微信应用', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700', pro: true },
-		    { id: 'feishu', name: '飞书', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600' },
-		    { id: 'feishu_app', name: '飞书应用', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600', pro: true },
-		    { id: 'email', name: '邮件', icon: 'img/icon_email.webp', color: 'bg-orange-50 text-orange-700' },
-		    { id: 'bark', name: 'Bark', icon: 'img/icon_bark.webp', color: 'bg-gray-50 text-gray-700' },
-		    { id: 'telegram', name: 'Telegram', icon: 'img/icon_telegram.webp', color: 'bg-sky-50 text-sky-700', pro: true },
-		    { id: 'discord_bot', name: 'Discord', icon: 'img/icon_discord.webp', color: 'bg-indigo-50 text-indigo-700', pro: true },
-		    { id: 'gotify', name: 'Gotify', icon: 'img/icon_gotify.webp', color: 'bg-emerald-50 text-emerald-700' },
-		    { id: 'webhook', name: 'Webhook', icon: 'img/icon_webhook.webp', color: 'bg-purple-50 text-purple-700' },
-		    { id: 'serverchan', name: 'Server酱', icon: 'img/icon_serverchan.webp', color: 'bg-pink-50 text-pink-700' },
-		    { id: 'pushplus', name: 'PushPlus', icon: 'img/icon_pushplus.webp', color: 'bg-cyan-50 text-cyan-700' },
-		    { id: 'qmsg', name: 'QMsg酱', icon: 'img/icon_qmsg.webp', color: 'bg-rose-50 text-rose-700' },
-		    { id: 'socket', name: 'Socket', icon: 'img/icon_socket.webp', color: 'bg-amber-50 text-amber-700', pro: true },
-		    { id: 'sms', name: '短信', icon: 'img/icon_sms.webp', color: 'bg-red-50 text-red-700', disabled: true }
+		    { id: 'dingtalk_group', nameKey: '钉钉群机器人', icon: 'img/icon_dingtalk.webp', color: 'bg-blue-50 text-blue-700' },
+		    { id: 'dingtalk_inner', nameKey: '钉钉企业', icon: 'img/icon_dingtalk_inner.webp', color: 'bg-blue-50 text-blue-700' },
+		    { id: 'wework_robot', nameKey: '企业微信', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700' },
+		    { id: 'wework_agent', nameKey: '企业微信应用', icon: 'img/icon_wework_agent.webp', color: 'bg-green-50 text-green-700', pro: true },
+		    { id: 'feishu', nameKey: '飞书', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600' },
+		    { id: 'feishu_app', nameKey: '飞书应用', icon: 'img/icon_feishu.webp', color: 'bg-blue-50 text-blue-600', pro: true },
+		    { id: 'email', nameKey: '邮件', icon: 'img/icon_email.webp', color: 'bg-orange-50 text-orange-700' },
+		    { id: 'bark', nameKey: 'Bark', icon: 'img/icon_bark.webp', color: 'bg-gray-50 text-gray-700' },
+		    { id: 'telegram', nameKey: 'Telegram', icon: 'img/icon_telegram.webp', color: 'bg-sky-50 text-sky-700', pro: true },
+		    { id: 'discord_bot', nameKey: 'Discord', icon: 'img/icon_discord.webp', color: 'bg-indigo-50 text-indigo-700', pro: true },
+		    { id: 'gotify', nameKey: 'Gotify', icon: 'img/icon_gotify.webp', color: 'bg-emerald-50 text-emerald-700' },
+		    { id: 'webhook', nameKey: 'Webhook', icon: 'img/icon_webhook.webp', color: 'bg-purple-50 text-purple-700' },
+		    { id: 'serverchan', nameKey: 'Server酱', icon: 'img/icon_serverchan.webp', color: 'bg-pink-50 text-pink-700' },
+		    { id: 'pushplus', nameKey: 'PushPlus', icon: 'img/icon_pushplus.webp', color: 'bg-cyan-50 text-cyan-700' },
+		    { id: 'qmsg', nameKey: 'QMsg酱', icon: 'img/icon_qmsg.webp', color: 'bg-rose-50 text-rose-700' },
+		    { id: 'socket', nameKey: 'Socket', icon: 'img/icon_socket.webp', color: 'bg-amber-50 text-amber-700', pro: true },
+		    { id: 'sms', nameKey: '短信', icon: 'img/icon_sms.webp', color: 'bg-red-50 text-red-700', disabled: true }
 		];
+		
+		function escapeHtml(value) {
+		    return String(value)
+		        .replace(/&/g, '&amp;')
+		        .replace(/</g, '&lt;')
+		        .replace(/>/g, '&gt;')
+		        .replace(/"/g, '&quot;')
+		        .replace(/'/g, '&#39;');
+		}
+		
+		function getChannelName(channel) {
+		    return window.translateText ? window.translateText(channel.nameKey) : channel.nameKey;
+		}
+		
+		function renderLoginButton() {
+		    const button = document.getElementById('loginBtn');
+		    if (!button) {
+		        return;
+		    }
+		
+		    const states = {
+		        default: { icon: 'key', label: window.translateText('登录获取 Token'), loading: false, success: false },
+		        loading: { icon: 'loader-2', label: window.translateText('登录中...'), loading: true, success: false },
+		        success: { icon: 'check', label: window.translateText('登录成功'), loading: false, success: true },
+		        retry: { icon: 'key', label: window.translateText('重新登录'), loading: false, success: false }
+		    };
+		
+		    const state = states[loginButtonState] || states.default;
+		    button.disabled = state.loading;
+		    button.classList.remove('bg-brand-500', 'hover:bg-brand-600', 'bg-emerald-500', 'hover:bg-emerald-600');
+		    if (state.success) {
+		        button.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+		    } else {
+		        button.classList.add('bg-brand-500', 'hover:bg-brand-600');
+		    }
+		
+		    button.innerHTML = `<i data-lucide="${state.icon}" class="w-4 h-4${state.loading ? ' animate-spin' : ''}"></i><span data-login-btn-text>${state.label}</span>`;
+		}
+		
+		function renderSendButton() {
+		    const button = document.getElementById('sendBtn');
+		    if (!button) {
+		        return;
+		    }
+		
+		    const isLoading = sendButtonState === 'loading';
+		    button.disabled = isLoading;
+		    button.innerHTML = `<i data-lucide="${isLoading ? 'loader-2' : 'send'}" class="w-4 h-4${isLoading ? ' animate-spin' : ''}"></i><span data-send-btn-text>${window.translateText(isLoading ? '发送中...' : '发送通知')}</span>`;
+		}
+		
+		function renderCopyButton() {
+		    const button = document.querySelector('[data-copy-btn]');
+		    if (!button) {
+		        return;
+		    }
+		
+		    const copied = copyButtonState === 'copied';
+		    button.innerHTML = `<i data-lucide="${copied ? 'check' : 'copy'}" class="w-3 h-3"></i><span data-copy-btn-text>${window.translateText(copied ? '已复制' : '复制')}</span>`;
+		}
+		
+		function renderNotifyResult() {
+		    const resultDiv = document.getElementById('notifyResult');
+		    if (!resultDiv) {
+		        return;
+		    }
+		
+		    if (!notifyResultState) {
+		        resultDiv.className = 'hidden rounded-xl p-3 text-sm';
+		        resultDiv.innerHTML = '';
+		        return;
+		    }
+		
+		    resultDiv.classList.remove('hidden');
+		    if (notifyResultState === 'success') {
+		        resultDiv.className = 'rounded-xl p-3 text-sm bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
+		        resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> ${window.translateText('发送成功')}</div><pre class="mt-2 text-xs overflow-x-auto">${escapeHtml(JSON.stringify(notifyResultPayload, null, 2))}</pre>`;
+		    } else {
+		        resultDiv.className = 'rounded-xl p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300';
+		        resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4"></i> ${window.translateText('发送失败')}</div><p class="mt-1 text-xs">${escapeHtml(notifyResultPayload || '')}</p>`;
+		    }
+		}
+		
+		function renderChannelGrid() {
+		    const grid = document.getElementById('channelGrid');
+		    if (!grid) {
+		        return;
+		    }
+		
+		    grid.innerHTML = channelsData.map((channel) => `
+		        <button onclick="toggleChannel('${channel.id}')" id="ch-${channel.id}"
+		            class="relative p-3 rounded-xl border-2 ${selectedChannels.has(channel.id) ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20' : 'border-transparent'} bg-white dark:bg-gray-800 hover:border-brand-200 dark:hover:border-brand-800 transition-all text-left group ${channel.disabled ? 'opacity-50 cursor-not-allowed' : ''}">
+		            ${channel.pro ? '<span class="absolute top-1 right-1"><i data-lucide="crown" class="w-3 h-3 text-yellow-500"></i></span>' : ''}
+		            ${channel.disabled ? `<span class="absolute top-1 right-1 text-[10px] text-red-500 font-bold">${window.translateText('不可用')}</span>` : ''}
+		            <div class="w-8 h-8 rounded-lg ${channel.color} flex items-center justify-center mb-2">
+		                <img src="${channel.icon}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
+		            </div>
+		            <div class="text-xs font-medium text-gray-700 dark:text-gray-300">${getChannelName(channel)}</div>
+		        </button>
+		    `).join('');
+		}
+		
+		function renderDocChannelTable() {
+		    const tbody = document.getElementById('docChannelTable');
+		    if (!tbody) {
+		        return;
+		    }
+		
+		    tbody.innerHTML = channelsData.map((channel) => `
+		        <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+		            <td class="px-3 py-2 font-mono text-brand-600 dark:text-brand-400">${channel.id}</td>
+		            <td class="px-3 py-2">${getChannelName(channel)} ${channel.pro ? '<span class="text-yellow-500 text-[10px]">PRO</span>' : ''}</td>
+		        </tr>
+		    `).join('');
+		}
+		
+		function updateSelectedTags() {
+		    const container = document.getElementById('selectedChannels');
+		    if (!container) {
+		        return;
+		    }
+		
+		    if (selectedChannels.size === 0) {
+		        container.innerHTML = `<span class="text-xs text-gray-400 italic">${window.translateText('未选择渠道（将使用用户默认配置）')}</span>`;
+		        return;
+		    }
+		
+		    container.innerHTML = Array.from(selectedChannels).map((id) => {
+		        const channel = channelsData.find((item) => item.id === id);
+		        return `
+		            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-medium">
+		                ${getChannelName(channel)}
+		                <button onclick="toggleChannel('${id}')" class="hover:text-brand-900"><i data-lucide="x" class="w-3 h-3"></i></button>
+		            </span>
+		        `;
+		    }).join('');
+		}
+		
+		function renderApiInterface() {
+		    renderLoginButton();
+		    renderSendButton();
+		    renderCopyButton();
+		    renderChannelGrid();
+		    renderDocChannelTable();
+		    updateSelectedTags();
+		    if (document.getElementById('channelFilter')?.value) {
+		        filterChannelGrid();
+		    }
+		    renderNotifyResult();
+		    lucide.createIcons();
+		}
+		
+		window.renderApiInterface = renderApiInterface;
 		
 		function openApiModal() {
 		    const modal = document.getElementById('apiModal');
 		    const backdrop = document.getElementById('apiModalBackdrop');
 		    const content = document.getElementById('apiModalContent');
-		    
+		
+		    renderApiInterface();
+		
 		    modal.classList.remove('hidden');
 		    void modal.offsetWidth;
-		    
+		
 		    backdrop.classList.remove('opacity-0');
 		    content.classList.remove('scale-95', 'opacity-0');
 		    content.classList.add('scale-100', 'opacity-100');
-		    
+		
 		    document.body.style.overflow = 'hidden';
-		    
-		    if (!document.getElementById('channelGrid').children.length) {
-		        renderChannelGrid();
-		        renderDocChannelTable();
-		    }
-		    
 		    setTimeout(() => lucide.createIcons(), 100);
 		}
 		
@@ -1496,209 +2017,165 @@ const result = await response.json();</code></pre>
 		    const modal = document.getElementById('apiModal');
 		    const backdrop = document.getElementById('apiModalBackdrop');
 		    const content = document.getElementById('apiModalContent');
-		    
+		
 		    backdrop.classList.add('opacity-0');
 		    content.classList.remove('scale-100', 'opacity-100');
 		    content.classList.add('scale-95', 'opacity-0');
-		    
+		
 		    setTimeout(() => {
 		        modal.classList.add('hidden');
 		        document.body.style.overflow = '';
 		    }, 300);
 		}
 		
-		function renderChannelGrid() {
-		    const grid = document.getElementById('channelGrid');
-		    grid.innerHTML = channelsData.map(ch => `
-		        <button onclick="toggleChannel('${ch.id}')" id="ch-${ch.id}" 
-		            class="relative p-3 rounded-xl border-2 border-transparent bg-white dark:bg-gray-800 hover:border-brand-200 dark:hover:border-brand-800 transition-all text-left group ${ch.disabled ? 'opacity-50 cursor-not-allowed' : ''}">
-		            ${ch.pro ? '<span class="absolute top-1 right-1"><i data-lucide="crown" class="w-3 h-3 text-yellow-500"></i></span>' : ''}
-		            ${ch.disabled ? '<span class="absolute top-1 right-1 text-[10px] text-red-500 font-bold">不可用</span>' : ''}
-		            <div class="w-8 h-8 rounded-lg ${ch.color} flex items-center justify-center mb-2">
-		                <img src="${ch.icon}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
-		            </div>
-		            <div class="text-xs font-medium text-gray-700 dark:text-gray-300">${ch.name}</div>
-		        </button>
-		    `).join('');
-		}
-		
-		function renderDocChannelTable() {
-		    const tbody = document.getElementById('docChannelTable');
-		    tbody.innerHTML = channelsData.map(ch => `
-		        <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
-		            <td class="px-3 py-2 font-mono text-brand-600 dark:text-brand-400">${ch.id}</td>
-		            <td class="px-3 py-2">${ch.name} ${ch.pro ? '<span class="text-yellow-500 text-[10px]">PRO</span>' : ''}</td>
-		        </tr>
-		    `).join('');
-		}
-		
 		function toggleChannel(id) {
-		    if (channelsData.find(c => c.id === id)?.disabled) return;
-		    
-		    const btn = document.getElementById(`ch-${id}`);
-		    if (selectedChannels.has(id)) {
-		        selectedChannels.delete(id);
-		        btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
-		    } else {
-		        selectedChannels.add(id);
-		        btn.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
-		    }
-		    updateSelectedTags();
-		}
-		
-		function updateSelectedTags() {
-		    const container = document.getElementById('selectedChannels');
-		    if (selectedChannels.size === 0) {
-		        container.innerHTML = '<span class="text-xs text-gray-400 italic">未选择渠道（将使用用户默认配置）</span>';
+		    if (channelsData.find((channel) => channel.id === id)?.disabled) {
 		        return;
 		    }
-		    container.innerHTML = Array.from(selectedChannels).map(id => {
-		        const ch = channelsData.find(c => c.id === id);
-		        return `
-		            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-medium">
-		                ${ch.name}
-		                <button onclick="toggleChannel('${id}')" class="hover:text-brand-900"><i data-lucide="x" class="w-3 h-3"></i></button>
-		            </span>
-		        `;
-		    }).join('');
+		
+		    if (selectedChannels.has(id)) {
+		        selectedChannels.delete(id);
+		    } else {
+		        selectedChannels.add(id);
+		    }
+		
+		    renderChannelGrid();
+		    updateSelectedTags();
 		    lucide.createIcons();
 		}
 		
 		function clearChannels() {
 		    selectedChannels.clear();
-		    document.querySelectorAll('[id^="ch-"]').forEach(btn => {
-		        btn.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/20');
-		    });
+		    renderChannelGrid();
 		    updateSelectedTags();
+		    lucide.createIcons();
 		}
 		
 		function filterChannelGrid() {
-		    const term = document.getElementById('channelFilter').value.toLowerCase();
-		    channelsData.forEach(ch => {
-		        const btn = document.getElementById(`ch-${ch.id}`);
-		        const match = ch.name.includes(term) || ch.id.includes(term);
-		        btn.style.display = match ? 'block' : 'none';
+		    const term = document.getElementById('channelFilter').value.trim().toLowerCase();
+		    channelsData.forEach((channel) => {
+		        const button = document.getElementById(`ch-${channel.id}`);
+		        if (!button) {
+		            return;
+		        }
+		        const haystack = [channel.id, channel.nameKey, getChannelName(channel)].join(' ').toLowerCase();
+		        button.style.display = haystack.includes(term) ? 'block' : 'none';
 		    });
 		}
 		
 		async function apiLogin() {
-		    const btn = document.getElementById('loginBtn');
 		    const username = document.getElementById('apiUsername').value;
 		    const password = document.getElementById('apiPassword').value;
-		    
+		
 		    if (!username || !password) {
-		        alert('请输入用户名和密码');
+		        alert(window.translateText('请输入用户名和密码'));
 		        return;
 		    }
-		    
-		    btn.disabled = true;
-		    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 登录中...';
+		
+		    loginButtonState = 'loading';
+		    renderLoginButton();
 		    lucide.createIcons();
-		    
+		
 		    try {
 		        const res = await fetch(`${API_BASE}/api/Auth/login`, {
 		            method: 'POST',
 		            headers: { 'Content-Type': 'application/json' },
 		            body: JSON.stringify({ userName: username, password: password })
 		        });
-		        
+		
 		        const data = await res.json();
-		        
 		        if (data.token || data.accessToken || data.data?.token) {
 		            currentToken = data.token || data.accessToken || data.data.token;
 		            document.getElementById('tokenValue').textContent = currentToken;
 		            document.getElementById('tokenDisplay').classList.remove('hidden');
-		            
-		            // 解锁通知区域
-		            const notifySection = document.getElementById('notifySection');
-		            notifySection.classList.remove('opacity-50', 'pointer-events-none');
-		            notifySection.classList.add('opacity-100');
-		            
-		            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> 登录成功';
-		            btn.classList.remove('bg-brand-500', 'hover:bg-brand-600');
-		            btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+		            document.getElementById('notifySection').classList.remove('opacity-50', 'pointer-events-none');
+		            document.getElementById('notifySection').classList.add('opacity-100');
+		            loginButtonState = 'success';
+		            copyButtonState = 'default';
 		        } else {
-		            throw new Error(data.message || '登录失败');
+		            throw new Error(data.message || window.translateText('登录失败'));
 		        }
 		    } catch (err) {
-		        btn.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 重新登录';
-		        alert('登录失败: ' + err.message);
+		        loginButtonState = 'retry';
+		        alert(`${window.translateText('登录失败')}: ${err.message}`);
 		    } finally {
-		        btn.disabled = false;
+		        renderLoginButton();
+		        renderCopyButton();
 		        lucide.createIcons();
 		    }
 		}
 		
-		function copyToken() {
+		function copyToken(event) {
 		    navigator.clipboard.writeText(currentToken);
-		    const btn = event.currentTarget;
-		    const orig = btn.innerHTML;
-		    btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> 已复制';
-		    setTimeout(() => {
-		        btn.innerHTML = orig;
+		    copyButtonState = 'copied';
+		    renderCopyButton();
+		    lucide.createIcons();
+		
+		    const button = event?.currentTarget;
+		    window.setTimeout(() => {
+		        if (button && !button.isConnected) {
+		            return;
+		        }
+		        copyButtonState = 'default';
+		        renderCopyButton();
 		        lucide.createIcons();
 		    }, 2000);
 		}
 		
 		async function sendNotify() {
-		    const btn = document.getElementById('sendBtn');
 		    const title = document.getElementById('notifyTitle').value;
 		    const desc = document.getElementById('notifyDesc').value;
 		    const tokenMode = document.querySelector('input[name="tokenMode"]:checked').value;
-		    
+		
 		    if (!title) {
-		        alert('请输入通知标题');
+		        alert(window.translateText('请输入通知标题'));
 		        return;
 		    }
-		    
+		
 		    const body = {
-		        title: title,
+		        title,
 		        description: desc || title
 		    };
-		    
+		
 		    const headers = {
 		        'Content-Type': 'application/json'
 		    };
-		    
+		
 		    if (tokenMode === 'header') {
-		        headers['Authorization'] = `Bearer ${currentToken}`;
+		        headers.Authorization = `Bearer ${currentToken}`;
 		    } else {
 		        body.token = currentToken;
 		    }
-		    
+		
 		    if (selectedChannels.size > 0) {
 		        body.channels = Array.from(selectedChannels);
 		    }
-		    
-		    btn.disabled = true;
-		    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 发送中...';
+		
+		    sendButtonState = 'loading';
+		    renderSendButton();
 		    lucide.createIcons();
-		    
+		
 		    try {
 		        const res = await fetch(`${API_BASE}/api/User/notify`, {
 		            method: 'POST',
-		            headers: headers,
+		            headers,
 		            body: JSON.stringify(body)
 		        });
-		        
+		
 		        const data = await res.json();
-		        const resultDiv = document.getElementById('notifyResult');
-		        resultDiv.classList.remove('hidden');
-		        
 		        if (res.ok) {
-		            resultDiv.className = 'rounded-xl p-3 text-sm bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300';
-		            resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> 发送成功</div><pre class="mt-2 text-xs overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>`;
+		            notifyResultState = 'success';
+		            notifyResultPayload = data;
 		        } else {
-		            throw new Error(data.message || '发送失败');
+		            throw new Error(data.message || window.translateText('发送失败'));
 		        }
 		    } catch (err) {
-		        const resultDiv = document.getElementById('notifyResult');
-		        resultDiv.classList.remove('hidden');
-		        resultDiv.className = 'rounded-xl p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300';
-		        resultDiv.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4"></i> 发送失败</div><p class="mt-1 text-xs">${err.message}</p>`;
+		        notifyResultState = 'error';
+		        notifyResultPayload = err.message;
 		    } finally {
-		        btn.disabled = false;
-		        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> 发送通知';
+		        sendButtonState = 'default';
+		        renderSendButton();
+		        renderNotifyResult();
 		        lucide.createIcons();
 		    }
 		}
@@ -1706,21 +2183,23 @@ const result = await response.json();</code></pre>
 		function resetApiForm() {
 		    currentToken = '';
 		    selectedChannels.clear();
+		    loginButtonState = 'default';
+		    sendButtonState = 'default';
+		    copyButtonState = 'default';
+		    notifyResultState = null;
+		    notifyResultPayload = null;
+		
 		    document.getElementById('apiUsername').value = '';
 		    document.getElementById('apiPassword').value = '';
 		    document.getElementById('notifyTitle').value = '';
 		    document.getElementById('notifyDesc').value = '';
+		    document.getElementById('channelFilter').value = '';
+		    document.getElementById('tokenValue').textContent = '';
 		    document.getElementById('tokenDisplay').classList.add('hidden');
-		    document.getElementById('notifyResult').classList.add('hidden');
 		    document.getElementById('notifySection').classList.add('opacity-50', 'pointer-events-none');
-		    
-		    const btn = document.getElementById('loginBtn');
-		    btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-		    btn.classList.add('bg-brand-500', 'hover:bg-brand-600');
-		    btn.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 登录获取 Token';
-		    
-		    clearChannels();
-		    lucide.createIcons();
+		    document.getElementById('notifySection').classList.remove('opacity-100');
+		
+		    renderApiInterface();
 		}
 		
 		function showApiDoc() {
