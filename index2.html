@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办提醒门户</title>
+	  <meta name="description" content="叮办聚合消息通知,多维度日程视图待办事项管理。Do aggregate message notification, multi-dimensional schedule view to-do list management">
+		    <meta name="keywords" content="叮办聚合消息通知,待办事项日程管理, 应用通知转发,短信转发,消息通知,日视图,周视图 ,月视图,日程提醒,便签笔记,Ding office aggregate message notification, to-do list schedule management, application notification forwarding, SMS forwarding, message notification, Day View, week View, month view, schedule reminder, note notes">
+    <link rel="stylesheet" href="todostyle.css">
+	<link rel="icon" href="favicon.ico" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div id="loginContainer" class="login-shell">
+        <div class="login-panel">
+            <img class="login-brand-image" src="assets/images/branding/dotnet_bot.png" alt="叮办 标识">
+            <h1 style="text-align: center;">叮办</h1> 
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-auth-tab="login">登录</button>
+                <button type="button" class="auth-tab" data-auth-tab="register">注册</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-field">
+                    <label for="loginUsername">邮箱或用户名</label>
+                    <input id="loginUsername" class="input" type="text" autocomplete="username" placeholder="输入邮箱或用户名" required>
+                </div>
+                <div class="form-field">
+                    <label for="loginPassword">密码</label>
+                    <input id="loginPassword" class="input" type="password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-right-to-bracket"></i>
+                    登录
+                </button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <div class="form-field">
+                    <label for="registerEmail">邮箱</label>
+                    <input id="registerEmail" class="input" type="email" autocomplete="email" placeholder="用于接收注册验证码" required>
+                    <p class="field-hint">注册后可直接使用邮箱登录。</p>
+                </div>
+                <div class="form-field">
+                    <label for="registerCode">验证码</label>
+                    <div class="verification-row">
+                        <input id="registerCode" class="input" type="text" inputmode="numeric" maxlength="6" pattern="\d{6}" autocomplete="one-time-code" placeholder="6 位验证码" required>
+                        <button id="sendRegisterCodeBtn" type="button" class="btn btn-secondary">获取验证码</button>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="registerPassword">密码</label>
+                    <input id="registerPassword" class="input" type="password" minlength="6" autocomplete="new-password" required>
+                </div>
+                <div class="form-field">
+                    <label for="registerUsername">用户名（选填）</label>
+                    <input id="registerUsername" class="input" type="text" autocomplete="username" maxlength="50" placeholder="不填将根据邮箱自动生成">
+                </div>
+                <div class="form-field">
+                    <label for="registerInvitationCode">邀请码（选填）</label>
+                    <input id="registerInvitationCode" class="input" type="text" inputmode="numeric" maxlength="6" pattern="\d{6}" placeholder="选填，输入 6 位好友邀请码">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i>
+                    注册
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainContainer" class="app-shell hidden">
+        <aside id="appSidebar" class="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-mark">
+                    <img src="assets/images/branding/dotnet_bot.png" alt="叮办 标识">
+                </div>
+                <div class="sidebar-brand-copy">
+                    <h2>叮办</h2>
+                    <p>Web端</p>
+                </div>
+                <div class="language-toggle sidebar-language-toggle" data-i18n-skip="true" aria-label="语言切换">
+                    <button id="languageToggleZh" type="button" class="language-toggle-option active" data-language-option="zh-CN" aria-pressed="true">中</button>
+                    <button id="languageToggleEn" type="button" class="language-toggle-option" data-language-option="en-US" aria-pressed="false">EN</button>
+                </div>
+                <button id="mobileNavClose" type="button" class="sidebar-close" aria-label="关闭导航菜单">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <nav class="nav-list" aria-label="主导航">
+                <button type="button" class="nav-item active" data-module="todo"><img class="nav-icon-image" src="assets/images/shell/list.png" alt=""><span>待办事项</span></button>
+                <button type="button" class="nav-item" data-module="sticky"><img class="nav-icon-image" src="assets/images/shell/list.png" alt=""><span>便签笔记</span></button>
+                <button type="button" class="nav-item" data-module="pomodoro"><img class="nav-icon-image" src="assets/images/shell/list.png" alt=""><span>番茄钟</span></button>
+                <button type="button" class="nav-item" data-module="groups"><img class="nav-icon-image" src="assets/images/shell/join.png" alt=""><span>我的组</span></button>
+                <button type="button" class="nav-item" data-module="community"><img class="nav-icon-image" src="assets/images/shell/list.png" alt=""><span>社区交流</span></button>
+                <button type="button" class="nav-item" data-module="profile"><img class="nav-icon-image" src="assets/images/shell/personal.png" alt=""><span>个人中心</span></button>
+                <button type="button" class="nav-item" data-module="redemption"><img class="nav-icon-image" src="assets/images/shell/personal.png" alt=""><span>兑换中心</span></button>
+                <button type="button" class="nav-item" data-module="plans"><img class="nav-icon-image" src="assets/images/shell/personal.png" alt=""><span>订阅套餐</span></button>
+                <button type="button" class="nav-item" data-module="weather"><img class="nav-icon-image" src="assets/images/shell/list.png" alt=""><span>天气预报</span></button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div id="connectionStatus" class="connection-status disconnected">
+                    <i class="fas fa-circle"></i>
+                    <span>未连接</span>
+                </div>
+                <div class="sidebar-user">
+                    <strong id="currentUserLabel">未登录</strong>
+                    <button id="logoutBtn" type="button" class="btn btn-ghost btn-block">
+                        <img class="nav-icon-image" src="assets/images/shell/logout.png" alt="">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <button id="mobileNavOverlay" type="button" class="app-drawer-overlay" aria-label="关闭导航菜单"></button>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <div class="topbar-heading">
+                    <button id="mobileNavToggle" type="button" class="mobile-nav-toggle" aria-label="打开导航菜单" aria-controls="appSidebar" aria-expanded="false">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <p class="page-eyebrow">统一工作台</p>
+                        <h1 id="pageTitle">待办事项</h1>
+                        <p id="pageSubtitle" class="page-subtitle">任务、提醒与月度总览</p>
+                    </div>
+                </div>
+                <div class="topbar-info">
+                    <span id="topbarRoleBadge" class="badge badge-neutral">普通用户</span>
+                    <span id="topbarPlanBadge" class="badge badge-accent">未订阅</span>
+                </div>
+            </header>
+
+            <main class="workspace">
+                <section id="section-todo" class="module-section active">
+                    <div class="module-grid module-grid-single">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>待办事项</h2>
+                                    <p>任务列表与月度总览视图。</p>
+                                </div>
+                                <div class="action-row">
+                                    <button id="addTodoBtn" type="button" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/plus.png" alt=""></span><span>新增待办</span></button>
+                                    <button id="addWeatherTodoBtn" type="button" class="btn btn-secondary"><i class="fas fa-cloud-sun-rain"></i>天气提醒</button>
+                                    <button id="refreshTodoBtn" type="button" class="btn btn-ghost"><i class="fas fa-rotate"></i>刷新</button>
+                                </div>
+                            </div>
+
+                            <div class="tab-row">
+                                <button type="button" class="tab-btn active" data-todo-view="list">任务列表</button>
+                                <button type="button" class="tab-btn" data-todo-view="calendar">月度总览</button>
+                            </div>
+
+                            <div id="todoViewList" class="sub-section active">
+                                <div class="filter-toolbar">
+                                    <div class="chip-group">
+                                        <button type="button" class="chip active" data-todo-scope="All">全部</button>
+                                        <button type="button" class="chip" data-todo-scope="Personal">个人</button>
+                                        <button type="button" class="chip" data-todo-scope="Team">团队</button>
+                                    </div>
+                                    <input id="todoSearchInput" class="input search-input" type="text" placeholder="搜索待办标题或描述">
+                                    <select id="todoStatusFilter" class="input">
+                                        <option value="">全部状态</option>
+                                        <option value="Pending">待完成</option>
+                                        <option value="Completed">已完成</option>
+                                    </select>
+                                    <select id="todoPriorityFilter" class="input">
+                                        <option value="">全部优先级</option>
+                                        <option value="High">高优先级</option>
+                                        <option value="Medium">中优先级</option>
+                                        <option value="Low">低优先级</option>
+                                    </select>
+                                    <select id="todoGroupFilter" class="input">
+                                        <option value="">全部小组</option>
+                                    </select>
+                                </div>
+
+                                <div class="stats-grid">
+                                    <div class="stat-card">
+                                        <span>总任务</span>
+                                        <strong id="totalTodos">0</strong>
+                                    </div>
+                                    <div class="stat-card">
+                                        <span>待完成</span>
+                                        <strong id="pendingTodos">0</strong>
+                                    </div>
+                                    <div class="stat-card">
+                                        <span>已完成</span>
+                                        <strong id="completedTodos">0</strong>
+                                    </div>
+                                </div>
+
+                                <div id="todoList" class="stack-list"></div>
+
+                                <div class="pager">
+                                    <button id="todoPrevBtn" type="button" class="btn btn-ghost">上一页</button>
+                                    <span id="todoPageInfo">第 1 页</span>
+                                    <button id="todoNextBtn" type="button" class="btn btn-ghost">下一页</button>
+                                </div>
+                            </div>
+
+                            <div id="todoViewCalendar" class="sub-section">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>月度总览</h3>
+                                        <p>按月查看每天的任务量、完成情况和提醒分布。</p>
+                                    </div>
+                                    <div class="action-row">
+                                        <button id="calendarPrevMonthBtn" type="button" class="btn btn-ghost btn-icon"><i class="fas fa-chevron-left"></i></button>
+                                        <strong id="calendarMonthLabel">-</strong>
+                                        <button id="calendarNextMonthBtn" type="button" class="btn btn-ghost btn-icon"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                                <div class="calendar-shell">
+                                    <div class="calendar-weekdays">
+                                        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                                    </div>
+                                    <div id="todoCalendarGrid" class="calendar-grid"></div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-head compact">
+                                        <div>
+                                            <h3>当日详情</h3>
+                                            <p id="todoDayDetailTitle">请选择日期</p>
+                                        </div>
+                                    </div>
+                                    <div id="todoDayDetail" class="stack-list compact-list"></div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-head compact">
+                                        <div>
+                                            <h3>团队快捷筛选</h3>
+                                            <p>快速切换到指定小组的任务视图。</p>
+                                        </div>
+                                    </div>
+                                    <div id="todoQuickGroups" class="mini-list"></div>
+                                </div>
+                            </div>
+                    </div>
+                </section>
+
+                <section id="section-sticky" class="module-section">
+                    <div class="module-grid module-grid-single">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>便签笔记</h2>
+                                    <p>便签列表与日历视图。</p>
+                                </div>
+                                <div class="action-row">
+                                    <button id="addNoteBtn" type="button" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/plus.png" alt=""></span><span>新建便签</span></button>
+                                    <button id="refreshNotesBtn" type="button" class="btn btn-ghost"><i class="fas fa-rotate"></i>刷新</button>
+                                </div>
+                            </div>
+
+                            <div class="tab-row">
+                                <button type="button" class="tab-btn active" data-sticky-view="list">便签列表</button>
+                                <button type="button" class="tab-btn" data-sticky-view="calendar">日历视图</button>
+                            </div>
+
+                            <div id="stickyViewList" class="sub-section active">
+                                <div class="filter-toolbar">
+                                    <input id="noteSearchInput" class="input search-input" type="text" placeholder="搜索便签标题或内容">
+                                    <input id="noteDateFilter" class="input" type="date">
+                                    <button id="clearNoteDateFilterBtn" type="button" class="btn btn-ghost">清除日期筛选</button>
+                                </div>
+                                <div id="stickyNotesGrid" class="note-grid"></div>
+                            </div>
+
+                            <div id="stickyViewCalendar" class="sub-section">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>便签日历</h3>
+                                        <p>按月查看每天的便签数量，并快速切换到当天摘要。</p>
+                                    </div>
+                                    <div class="action-row">
+                                        <button id="stickyPrevMonthBtn" type="button" class="btn btn-ghost btn-icon"><i class="fas fa-chevron-left"></i></button>
+                                        <strong id="stickyMonthLabel">-</strong>
+                                        <button id="stickyNextMonthBtn" type="button" class="btn btn-ghost btn-icon"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                                <div class="calendar-shell">
+                                    <div class="calendar-weekdays">
+                                        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                                    </div>
+                                    <div id="stickyCalendarGrid" class="calendar-grid"></div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-head compact">
+                                        <div>
+                                            <h3>当天摘要</h3>
+                                            <p id="stickyDayTitle">按日期查看</p>
+                                        </div>
+                                    </div>
+                                    <div id="stickyDaySummary" class="stack-list compact-list"></div>
+                                </div>
+                            </div>
+                    </div>
+                </section>
+
+                <section id="section-pomodoro" class="module-section">
+                    <div class="module-grid">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>番茄钟</h2>
+                                    <p>支持专注、短休息、长休息三种阶段切换，并记录今日专注时长。</p>
+                                </div>
+                            </div>
+
+                            <div class="pomodoro-shell">
+                                <div class="timer-orb">
+                                    <span id="pomodoroPhaseLabel">专注中</span>
+                                    <strong id="pomodoroDisplay">25:00</strong>
+                                    <small id="pomodoroHint">准备开始本轮专注</small>
+                                </div>
+
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="pomodoroTaskName">专注主题</label>
+                                        <input id="pomodoroTaskName" class="input" type="text" placeholder="例如：整理月报 / 编写接口文档">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="pomodoroFocusMinutes">专注分钟</label>
+                                        <input id="pomodoroFocusMinutes" class="input" type="number" min="1" max="180" value="25">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="pomodoroShortBreak">短休息分钟</label>
+                                        <input id="pomodoroShortBreak" class="input" type="number" min="1" max="60" value="5">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="pomodoroLongBreak">长休息分钟</label>
+                                        <input id="pomodoroLongBreak" class="input" type="number" min="1" max="90" value="15">
+                                    </div>
+                                </div>
+
+                                <div class="preset-row">
+                                    <button type="button" class="chip" data-pomodoro-preset="25">25 分钟</button>
+                                    <button type="button" class="chip" data-pomodoro-preset="45">45 分钟</button>
+                                    <button type="button" class="chip" data-pomodoro-preset="60">60 分钟</button>
+                                </div>
+
+                                <div class="action-row">
+                                    <button id="pomodoroStartBtn" type="button" class="btn btn-primary"><i class="fas fa-play"></i>开始</button>
+                                    <button id="pomodoroPauseBtn" type="button" class="btn btn-secondary"><i class="fas fa-pause"></i>暂停</button>
+                                    <button id="pomodoroResetBtn" type="button" class="btn btn-ghost"><i class="fas fa-rotate-left"></i>重置</button>
+                                    <button id="pomodoroSkipBtn" type="button" class="btn btn-ghost"><i class="fas fa-forward"></i>跳过阶段</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-head compact">
+                                <div>
+                                    <h3>专注统计</h3>
+                                    <p>本地统计，不依赖后端服务。</p>
+                                </div>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <span>完成轮次</span>
+                                    <strong id="pomodoroSessionsCount">0</strong>
+                                </div>
+                                <div class="stat-card">
+                                    <span>今日专注</span>
+                                    <strong id="pomodoroFocusedMinutes">0 分钟</strong>
+                                </div>
+                                <div class="stat-card">
+                                    <span>当前主题</span>
+                                    <strong id="pomodoroCurrentTask">未设置</strong>
+                                </div>
+                            </div>
+                            <div class="card muted-card">
+                                <h4>使用建议</h4>
+                                <p>可以先在待办列表中筛出当日重点任务，再进入番茄钟进行分段专注，提升执行节奏。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+<section id="section-groups" class="module-section">
+                    <div class="module-grid">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>我的组</h2>
+                                    <p>创建、加入、退出、删除小组，并查看成员、组长权限与共享待办协作状态。</p>
+                                </div>
+                                <div class="action-row">
+                                    <button id="createGroupBtn" type="button" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/plus.png" alt=""></span><span>创建小组</span></button>
+                                </div>
+                            </div>
+                            <div class="section-banner section-banner-group">
+                                <div class="section-banner-copy">
+                                    <span class="badge badge-neutral">团队协作</span>
+                                    <strong>共享待办、成员管理和角色权限集中处理</strong>
+                                    <p>创建或加入小组后，可以直接查看成员、切换团队待办，并在右侧详情面板继续管理。</p>
+                                </div>
+                                <img src="assets/images/shell/join.png" alt="小组协作">
+                            </div>
+                            <div class="filter-toolbar">
+                                <input id="joinGroupIdInput" class="input" type="number" min="1" placeholder="输入组 ID 后加入已有小组">
+                                <button id="joinGroupBtn" type="button" class="btn btn-secondary"><span class="btn-media"><img src="assets/images/shell/join.png" alt=""></span><span>加入小组</span></button>
+                                <button id="refreshGroupsBtn" type="button" class="btn btn-ghost"><i class="fas fa-rotate"></i>刷新</button>
+                            </div>
+                            <div id="groupsList" class="stack-list"></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-head compact">
+                                <div>
+                                    <h3>小组详情</h3>
+                                    <p id="groupDetailSubtitle">请选择左侧小组查看成员、角色和快捷操作</p>
+                                </div>
+                            </div>
+                            <div id="groupDetailPanel" class="detail-panel"></div>
+                        </div>
+                    </div>
+                </section>
+                <section id="section-community" class="module-section">
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <h2>社区交流</h2>
+                                <p>覆盖首页帖子流、发布帖子、帖子管理、用户管理、分类管理和管理员看板。</p>
+                            </div>
+                            <div class="action-row">
+                                <button id="refreshCommunityBtn" type="button" class="btn btn-ghost"><i class="fas fa-rotate"></i>刷新</button>
+                            </div>
+                        </div>
+
+                        <div id="communitySummary" class="stats-grid"></div>
+                        <div class="section-banner section-banner-community">
+                            <div class="section-banner-copy">
+                                <span class="badge badge-accent">社区运营</span>
+                                <strong>帖子、用户、分类与管理员看板统一维护</strong>
+                                <p>帖子流、发布帖子、帖子管理、用户管理和分类管理都保持在同一工作区，方便快速联动处理。</p>
+                            </div>
+                            <img src="assets/images/illustrations/hot.png" alt="社区热度">
+                        </div>
+
+                        <div class="tab-row">
+                            <button type="button" class="tab-btn active" data-community-tab="feed">帖子流</button>
+                            <button type="button" class="tab-btn can-create-post" data-community-tab="publish">发布帖子</button>
+                            <button type="button" class="tab-btn" data-community-tab="profile">个人中心</button>
+                            <button type="button" class="tab-btn admin-only" data-community-tab="posts">帖子管理</button>
+                            <button type="button" class="tab-btn admin-only" data-community-tab="users">用户管理</button>
+                            <button type="button" class="tab-btn admin-only" data-community-tab="categories">分类管理</button>
+                        </div>
+
+                        <div id="communityTabFeed" class="sub-section active">
+                            <div class="filter-toolbar">
+                                <div id="communityCategoryFilters" class="chip-group"></div>
+                            </div>
+                            <div id="communityFeedList" class="post-grid"></div>
+                        </div>
+
+                        <div id="communityTabPublish" class="sub-section">
+                            <form id="communityPostForm" class="stack-form">
+                                <input id="communityPostId" type="hidden">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="communityCategorySelect">帖子分类</label>
+                                        <select id="communityCategorySelect" class="input"></select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="communityPostTitle">帖子标题</label>
+                                        <input id="communityPostTitle" class="input" type="text" maxlength="160" required>
+                                    </div>
+                                </div>
+
+                                <div class="editor-toolbar" data-editor-target="communityPostEditor">
+                                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="bold"><i class="fas fa-bold"></i></button>
+                                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="italic"><i class="fas fa-italic"></i></button>
+                                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+                                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="formatBlock" data-editor-value="blockquote"><i class="fas fa-quote-right"></i></button>
+                                    <button id="communityUploadImageBtn" type="button" class="btn btn-ghost">上传图片</button>
+                                    <input id="communityPostImageInput" type="file" accept="image/*" class="hidden">
+                                </div>
+
+                                <div id="communityPostEditor" class="rich-editor" contenteditable="true" data-placeholder="输入帖子正文，支持基础富文本和图片内容"></div>
+
+                                <div class="form-grid">
+                                    <label class="switch-row">
+                                        <input id="communityPostPublished" type="checkbox" checked>
+                                        <span>保存后立即公开</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="communityPostPinned" type="checkbox">
+                                        <span>设为置顶（仅管理员）</span>
+                                    </label>
+                                </div>
+
+                                <div class="action-row">
+                                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存帖子</span></button>
+                                    <button id="resetCommunityPostBtn" type="button" class="btn btn-secondary">重置表单</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        
+
+                        <div id="communityTabProfile" class="sub-section">
+                            <div id="communityProfileContent"></div>
+                        </div>
+
+                        <div id="communityTabPosts" class="sub-section">
+                            <div class="card muted-card">
+                                <p>管理员可筛选全部帖子并查看发布状态、置顶状态和作者信息；普通用户仅看到自己可管理的帖子。</p>
+                            </div>
+                            <div class="filter-toolbar management-toolbar">
+                                <input id="communityManagePostKeyword" class="input search-input" type="text" placeholder="搜索标题、摘要、作者或正文关键词">
+                                <select id="communityManagePostStatus" class="input">
+                                    <option value="all">全部帖子</option>
+                                    <option value="published">已发布</option>
+                                    <option value="draft">草稿</option>
+                                    <option value="pinned">置顶</option>
+                                    <option value="mine">仅看我的</option>
+                                </select>
+                            </div>
+                            <div id="communityManagePosts" class="stack-list"></div>
+                        </div>
+
+                        <div id="communityTabUsers" class="sub-section">
+                            <div class="card muted-card">
+                                <p>用户管理仅对社区管理员开放，可筛选管理员、Pro 用户、停用用户，并从这里进入后台看板。</p>
+                            </div>
+                            <div class="filter-toolbar management-toolbar">
+                                <input id="communityManageUserKeyword" class="input search-input" type="text" placeholder="搜索用户名、昵称或邮箱">
+                                <select id="communityManageUserFilter" class="input">
+                                    <option value="all">全部用户</option>
+                                    <option value="admin">仅管理员</option>
+                                    <option value="pro">仅 Pro</option>
+                                    <option value="inactive">仅停用</option>
+                                </select>
+                            </div>
+                            <div id="communityManageUsers" class="stack-list"></div>
+                            <div id="communityAdminBoard" class="stack-list"></div>
+                        </div>
+
+                        <div id="communityTabCategories" class="sub-section">
+                            <div class="stack-form">
+                                <input id="communityCategoryId" type="hidden">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="communityCategoryName">分类名称</label>
+                                        <input id="communityCategoryName" class="input" type="text" maxlength="80">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="communityCategorySlug">分类标识</label>
+                                        <input id="communityCategorySlug" class="input" type="text" maxlength="80">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="communityCategoryColor">强调色</label>
+                                        <input id="communityCategoryColor" class="input" type="text" value="#2563EB">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="communityCategorySort">排序</label>
+                                        <input id="communityCategorySort" class="input" type="number" value="0">
+                                    </div>
+                                </div>
+                                <label class="switch-row">
+                                    <input id="communityCategoryEnabled" type="checkbox" checked>
+                                    <span>启用分类</span>
+                                </label>
+                                <div class="action-row">
+                                    <button id="saveCommunityCategoryBtn" type="button" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存分类</span></button>
+                                    <button id="resetCommunityCategoryBtn" type="button" class="btn btn-secondary">重置分类</button>
+                                </div>
+                            </div>
+                            <div id="communityManageCategories" class="post-grid"></div>
+                        </div>
+                    </div>
+                </section>
+
+                                <section id="section-profile" class="module-section">
+                    <div class="card">
+                        <div class="card-head"> 
+                        </div>
+
+                        <div id="profileSummary" class="stats-grid"></div>
+
+                        <div class="tab-row">
+                            <button type="button" class="tab-btn active" data-profile-tab="basic">基础资料</button>
+                            <button type="button" class="tab-btn hidden" data-profile-tab="settings">偏好设置</button>
+                            <button type="button" class="tab-btn" data-profile-tab="channels">渠道设置</button>
+                        </div>
+
+                        <div id="profileTabBasic" class="sub-section active">
+                            <form id="profileForm" class="stack-form">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="profileUserName">用户名</label>
+                                        <input id="profileUserName" class="input" type="text" disabled>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="profileDisplayName">显示名称</label>
+                                        <input id="profileDisplayName" class="input" type="text" maxlength="100">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="profileEmail">邮箱</label>
+                                        <input id="profileEmail" class="input" type="email" maxlength="100">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="profileAvatarUrl">头像地址</label>
+                                        <input id="profileAvatarUrl" class="input" type="text" maxlength="500">
+                                    </div>
+                                </div>
+                                <div class="action-row">
+                                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存资料</span></button>
+                                </div>
+                            </form>
+                            <div class="detail-panel invite-summary-panel">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>邀请码与兑换点</h3>
+                                        <p>分享邀请码邀请好友注册，获得兑换点后可在兑换中心兑换 Pro 时长。</p>
+                                    </div>
+                                    <div class="action-row">
+                                        <button id="profileCopyInviteBtn" type="button" class="btn btn-secondary"><i class="fas fa-copy"></i>复制邀请码</button>
+                                        <button id="profileOpenRedemptionBtn" type="button" class="btn btn-primary"><i class="fas fa-ticket"></i>打开兑换中心</button>
+                                    </div>
+                                </div>
+                                <div class="stats-grid invite-stats-grid">
+                                    <div class="stat-card">
+                                        <span>我的邀请码</span>
+                                        <strong id="profileInviteCode">--</strong>
+                                    </div>
+                                    <div class="stat-card">
+                                        <span>当前兑换点</span>
+                                        <strong id="profilePointBalance">0</strong>
+                                    </div>
+                                </div>
+                                <div class="reward-rule-list">
+                                    <p>1. 分享邀请码：将你的邀请码或链接分享给好友。</p>
+                                    <p>2. 好友注册：好友使用你的邀请码注册成功，你将获得 1 天兑换点。</p>
+                                    <p>3. 首次购买奖励：好友首次购买时，你将获得对应天数 15% 的兑换点奖励。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="profileTabSettings" class="sub-section hidden">
+                            <form id="settingsForm" class="stack-form">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="settingsDefaultRemindInterval">默认提醒间隔（分钟）</label>
+                                        <input id="settingsDefaultRemindInterval" class="input" type="number" min="0">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="settingsTheme">主题</label>
+                                        <input id="settingsTheme" class="input" type="text" placeholder="例如：default">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="settingsLanguage">语言</label>
+                                        <select id="settingsLanguage" class="input">
+                                            <option value="zh-CN">简体中文</option>
+                                            <option value="en-US">English</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="settingsWxWebhook">微信 Webhook</label>
+                                        <input id="settingsWxWebhook" class="input" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid">
+                                    <label class="switch-row">
+                                        <input id="settingsEnableEmailNotify" type="checkbox">
+                                        <span>启用邮件通知</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="settingsEnablePushNotify" type="checkbox">
+                                        <span>启用推送通知</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="settingsNotifySound" type="checkbox">
+                                        <span>通知声音</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="settingsAppLight" type="checkbox">
+                                        <span>浅色模式</span>
+                                    </label>
+                                </div>
+
+                                <div class="action-row">
+                                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存设置</span></button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div id="profileTabChannels" class="sub-section">
+                            <div class="card-head compact">
+                                <div>
+                                    <h3>渠道设置</h3>
+                                </div> 
+                            </div> 
+
+                            <div id="appForwardingPanel" class="detail-panel" style="display:none">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h4>应用转发预设</h4>
+                                        <p>对应移动端 `AppForwardingSettingsStore`。浏览器端会保存配置草稿，供 Android 侧读取并执行应用通知转发。</p>
+                                    </div>
+                                    <span id="appForwardingSummary" class="tag">未启用</span>
+                                </div>
+                                <div class="form-grid">
+                                    <label class="switch-row">
+                                        <input id="appForwardingEnabled" type="checkbox">
+                                        <span>启用应用转发</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="appForwardingAutoDismiss" type="checkbox">
+                                        <span>自动消除通知</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="appForwardingOnlyLocked" type="checkbox">
+                                        <span>仅锁屏时转发</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="appForwardSmsOnly" type="checkbox">
+                                        <span>仅转发短信广播</span>
+                                    </label>
+                                    <label class="switch-row">
+                                        <input id="appForwardSelectedOnly" type="checkbox">
+                                        <span>仅转发指定应用</span>
+                                    </label>
+                                </div>
+                                <div id="appForwardingPackagesSection" class="stack-form">
+                                    <div class="card-head compact">
+                                        <div>
+                                            <h4>指定应用列表</h4>
+                                            <p>只有在开启“仅转发指定应用”时生效，可以同时保存应用名称和包名。</p>
+                                        </div>
+                                        <div class="action-row">
+                                            <button id="clearForwardPackagesBtn" type="button" class="btn btn-ghost">清空列表</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="appForwardAppName">应用名称</label>
+                                            <input id="appForwardAppName" class="input" type="text" placeholder="例如：微信、企业微信、支付宝">
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="appForwardPackageName">包名</label>
+                                            <input id="appForwardPackageName" class="input" type="text" placeholder="例如：com.tencent.mm">
+                                        </div>
+                                    </div>
+                                    <div class="action-row">
+                                        <button id="addForwardPackageBtn" type="button" class="btn btn-secondary"><span class="btn-media"><img src="assets/images/shell/plus.png" alt=""></span><span>添加应用</span></button>
+                                    </div>
+                                    <div id="appForwardingPackageList" class="stack-list compact-list"></div>
+                                </div>
+                            </div>
+
+                            <div id="channelList" class="channel-management-stack"></div>
+
+                            <form id="forwardTestForm" class="stack-form test-form">
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label for="forwardTitle">测试标题</label>
+                                        <input id="forwardTitle" class="input" type="text" value="渠道测试消息">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="forwardSourceType">来源类型</label>
+                                        <select id="forwardSourceType" class="input">
+                                            <option value="app">应用</option>
+                                            <option value="sms">短信</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-field">
+                                    <label for="forwardDescription">测试内容</label>
+                                    <textarea id="forwardDescription" class="input textarea" rows="3">这是一条来自网页端的渠道测试消息。</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-secondary"><i class="fas fa-paper-plane"></i>发送渠道测试</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+                <section id="section-redemption" class="module-section">
+                    <div class="module-grid module-grid-wide">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>兑换中心</h2>
+                                    <p>分享邀请码获取兑换点，兑换 Pro 时长，或使用兑换码为兑换点充值。</p>
+                                </div>
+                                <div class="action-row">
+                                    <button id="redemptionRefreshBtn" type="button" class="btn btn-secondary"><i class="fas fa-rotate"></i>刷新</button>
+                                </div>
+                            </div>
+
+                            <div id="redemptionSummary" class="stats-grid"></div>
+
+                            <div class="detail-panel redemption-invite-panel">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>我的邀请码</h3>
+                                        <p>邀请码为 6 位数字，复制后可直接发给好友注册。</p>
+                                    </div>
+                                </div>
+                                <div class="invite-code-shell">
+                                    <strong id="redemptionInviteCode" class="invite-code-value">--</strong>
+                                    <button id="redemptionCopyInviteBtn" type="button" class="btn btn-secondary"><i class="fas fa-copy"></i>复制邀请码</button>
+                                </div>
+                                <div class="tag-row">
+                                        <span id="redemptionInviteCountTag" class="tag">已邀请 0 人</span>
+                                        <span id="redemptionUsedCodeTag" class="tag">已使用 0 个兑换码</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-panel">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>兑换 Pro 权限</h3>
+                                        <p>兑换点与天数 1:1 抵扣，可直接兑换 1 天、7 天或 30 天的 Pro 权限。</p>
+                                    </div>
+                                </div>
+                                <div id="redemptionOptions" class="plan-grid"></div>
+                            </div>
+
+                            <form id="redemptionCodeForm" class="stack-form">
+                                <div class="form-grid redemption-code-grid">
+                                    <div class="form-field">
+                                        <label for="redemptionCodeInput">兑换码充值</label>
+                                        <input id="redemptionCodeInput" class="input" type="text" maxlength="50" placeholder="请输入兑换码">
+                                    </div>
+                                    <div class="form-field redemption-submit-field">
+                                        <label>&nbsp;</label>
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-bolt"></i>兑换额度</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div id="redemptionGeneratedCodesPanel" class="detail-panel hidden">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>最近生成的卡密</h3>
+                                        <p>新生成的兑换码会展示在这里，方便立即分发或复制。</p>
+                                    </div>
+                                </div>
+                                <div id="redemptionGeneratedCodes" class="generated-code-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="side-column">
+                            <div class="card">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>奖励说明</h3>
+                                        <p>邀请好友注册与购买都能获得兑换点，可直接在本页兑换 Pro 权限。</p>
+                                    </div>
+                                </div>
+                                <div class="reward-rule-list">
+                                    <p>1. 分享邀请码：将你的邀请码或链接分享给好友。</p>
+                                    <p>2. 好友注册：好友使用你的邀请码注册成功，你将获得 1 天兑换点。</p>
+                                    <p>3. 获得奖励：好友首次购买时，你将获得 15% 的对应天数兑换点奖励。</p>
+                                </div>
+                            </div>
+
+                            <div id="redemptionAdminCard" class="card hidden">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h3>管理员卡密生成</h3>
+                                        <p>可以生成不同天数、不同渠道标签的兑换码，并筛选已使用或未使用卡密。</p>
+                                    </div>
+                                </div>
+
+                                <form id="redemptionAdminGenerateForm" class="stack-form">
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="redemptionAdminCount">生成数量</label>
+                                            <input id="redemptionAdminCount" class="input" type="number" min="1" max="500" value="10">
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="redemptionAdminPoints">兑换天数</label>
+                                            <select id="redemptionAdminPoints" class="input">
+                                                <option value="1">1 天</option>
+                                                <option value="7">7 天</option>
+                                                <option value="30" selected>30 天</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="redemptionAdminTag">标签</label>
+                                            <input id="redemptionAdminTag" class="input" type="text" maxlength="80" placeholder="如：公众号 / 渠道A">
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="redemptionAdminDescription">描述</label>
+                                            <input id="redemptionAdminDescription" class="input" type="text" maxlength="255" placeholder="方便后续筛选的描述">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i>生成兑换码</button>
+                                </form>
+
+                                <div class="detail-panel">
+                                    <div id="redemptionAdminFilters" class="tab-row">
+                                        <button type="button" class="tab-btn active" data-redemption-filter="all">全部</button>
+                                        <button type="button" class="tab-btn" data-redemption-filter="unused">未使用</button>
+                                        <button type="button" class="tab-btn" data-redemption-filter="used">已使用</button>
+                                        <button id="redemptionAdminBatchDeleteBtn" type="button" class="btn btn-ghost">批量删除</button>
+                                    </div>
+                                    <div class="form-grid redemption-admin-search-grid">
+                                        <div class="form-field">
+                                            <label for="redemptionAdminTagFilter">筛选标签</label>
+                                            <select id="redemptionAdminTagFilter" class="input">
+                                                <option value="">全部标签</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="redemptionAdminKeyword">搜索兑换码 / 描述</label>
+                                            <input id="redemptionAdminKeyword" class="input" type="text" maxlength="80" placeholder="支持模糊搜索，标签请使用左侧下拉框">
+                                        </div>
+                                        <div class="form-field redemption-submit-field">
+                                            <label>&nbsp;</label>
+                                            <button id="redemptionAdminSearchBtn" type="button" class="btn btn-secondary"><i class="fas fa-search"></i>筛选列表</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="redemptionAdminList" class="stack-list compact-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+<section id="section-plans" class="module-section">
+                    <div class="module-grid">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <h2>订阅套餐</h2>
+                                    <p>展示当前会员状态，并支持创建外部支付订单、扫码支付和手动同步会员时长。</p>
+                                </div>
+                            </div>
+                            <div id="planCurrentStatus" class="detail-panel"></div>
+                            <div class="detail-panel">
+                                <div class="form-grid plan-channel-grid">
+                                    <div class="form-field">
+                                        <label for="planPaymentChannel">支付方式</label>
+                                        <select id="planPaymentChannel" class="input">
+                                            <option value="alipay">支付宝</option>
+                                            <option value="wechat">微信支付</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label>下单说明</label>
+                                        <p id="planPaymentHint" class="field-hint">网页端会直接尝试创建外部支付订单；如果当前环境无法调起支付，也可以使用右侧的订单同步流程完成补录。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-grid">
+                                <article class="plan-card">
+                                    <span class="hero-badge">Monthly</span>
+                                    <h3>月度会员</h3>
+                                    <strong>¥9.9 / 1 个月</strong>
+                                    <p>适合短期高频使用，快速开启高级提醒、社区和转发能力。</p>
+                                    <button type="button" class="btn btn-primary" data-plan-id="monthly" data-plan-months="1">立即开通</button>
+                                </article>
+                                <article class="plan-card">
+                                    <span class="hero-badge">Yearly</span>
+                                    <h3>年度会员</h3>
+                                    <strong>¥99 / 12 个月</strong>
+                                    <p>适合长期使用，按年度统一管理订阅、社区权限和通知渠道。</p>
+                                    <button type="button" class="btn btn-primary" data-plan-id="yearly" data-plan-months="12">立即开通</button>
+                                </article>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-head compact">
+                                <div>
+                                    <h3>会员同步</h3>
+                                    <p>后端提供 `api/User/pro-membership/sync`，可通过订单号手动同步会员时长。</p>
+                                </div>
+                            </div>
+                            <div id="planCurrentOrder" class="detail-panel"></div>
+                            <div id="planQrSection" class="detail-panel hidden">
+                                <div class="card-head compact">
+                                    <div>
+                                        <h4>支付二维码</h4>
+                                        <p id="planQrHint" class="field-hint">可以直接扫码支付；支付完成后可先刷新状态，若尚未回写，再使用下方表单手动同步。</p>
+                                    </div>
+                                </div>
+                                <div class="plan-qr-shell">
+                                    <div id="planQrCode" class="plan-qr-code"></div>
+                                </div>
+                            </div>
+                            <div class="action-row">
+                                <button id="planRefreshStatusBtn" type="button" class="btn btn-secondary"><i class="fas fa-rotate"></i>刷新支付状态</button>
+                                <button id="planOpenPaymentBtn" type="button" class="btn btn-ghost"><i class="fas fa-arrow-up-right-from-square"></i>打开支付链接</button>
+                                <button id="planFillOrderBtn" type="button" class="btn btn-ghost"><i class="fas fa-file-import"></i>带入同步表单</button>
+                            </div>
+                            <form id="membershipSyncForm" class="stack-form">
+                                <div class="form-field">
+                                    <label for="membershipOrderId">订单号</label>
+                                    <input id="membershipOrderId" class="input" type="text" placeholder="输入外部支付平台订单号" required>
+                                </div>
+                                <div class="form-field">
+                                    <label for="membershipMonths">增加月份</label>
+                                    <select id="membershipMonths" class="input">
+                                        <option value="1">1 个月</option>
+                                        <option value="12">12 个月</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>同步会员</span></button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+                <section id="section-weather" class="module-section">
+                    <div class="card">
+                        <div class="card-head">
+                            <div>
+                                <h2>天气预报</h2>
+                                <p>直接调用项目已经使用的天气接口，并支持一键转成天气提醒待办。</p>
+                            </div>
+                            <div class="action-row">
+                                <button id="weatherSearchBtn" type="button" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/search.png" alt=""></span><span>查询天气</span></button>
+                                <button id="weatherCreateReminderBtn" type="button" class="btn btn-secondary"><i class="fas fa-cloud-rain"></i>转为天气提醒</button>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="weatherCityInput">城市</label>
+                                <input id="weatherCityInput" class="input search-input" type="text" placeholder="例如：成都 / 北京 / Tokyo">
+                            </div>
+                            <div class="form-field">
+                                <label for="weatherAdcodeInput">行政区编码</label>
+                                <input id="weatherAdcodeInput" class="input" type="text" placeholder="已知 adcode 时优先使用">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <label class="switch-row"><input id="weatherUseExtended" type="checkbox"><span>扩展字段</span></label>
+                            <label class="switch-row"><input id="weatherUseForecast" type="checkbox" checked><span>多天预报</span></label>
+                            <label class="switch-row"><input id="weatherUseHourly" type="checkbox"><span>逐小时预报</span></label>
+                            <label class="switch-row"><input id="weatherUseMinutely" type="checkbox"><span>分钟级降水</span></label>
+                            <label class="switch-row"><input id="weatherUseIndices" type="checkbox"><span>生活指数</span></label>
+                        </div>
+
+                        <div class="weather-summary">
+                            <div class="weather-summary-copy">
+                                <h3 id="weatherLocationTitle">尚未查询天气</h3>
+                                <p id="weatherStatusText">请输入城市或行政区编码后开始查询</p>
+                                <strong id="weatherCurrentSummary">-</strong>
+                            </div>
+                            <img class="weather-summary-illustration" src="assets/images/illustrations/cloud.png" alt="天气预报">
+                        </div>
+
+                        <div id="weatherCurrentDetails" class="detail-grid"></div>
+
+                        <div class="module-grid weather-section-grid">
+                            <div class="card">
+                                <div class="card-head compact"><div><h3>未来天气</h3><p>按天查看预报趋势</p></div></div>
+                                <div id="weatherForecastList" class="weather-list"></div>
+                            </div>
+                            <div class="card">
+                                <div class="card-head compact"><div><h3>小时 / 降水 / 指数</h3><p>展示逐小时、分钟级降水和生活指数细节</p></div></div>
+                                <div id="weatherExtraSections" class="weather-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+        <div id="todoModal" class="modal">
+        <div class="modal-dialog modal-large">
+            <div class="modal-head">
+                <h3 id="todoModalTitle">新增待办</h3>
+                <button type="button" class="modal-close" data-close-modal="todoModal">&times;</button>
+            </div>
+            <form id="todoForm" class="stack-form">
+                <input id="todoId" type="hidden">
+                <input id="todoMode" type="hidden" value="standard">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="todoTitle">标题</label>
+                        <input id="todoTitle" class="input" type="text" maxlength="200" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="todoRemindTime">提醒时间</label>
+                        <input id="todoRemindTime" class="input" type="datetime-local">
+                    </div>
+                </div>
+
+                <div id="todoDescriptionGroup" class="form-field">
+                    <label for="todoDescription">描述</label>
+                    <textarea id="todoDescription" class="input textarea" rows="3" maxlength="1000"></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div id="todoPriorityGroup" class="form-field">
+                        <label for="todoPriority">优先级</label>
+                        <select id="todoPriority" class="input">
+                            <option value="1">低</option>
+                            <option value="2" selected>中</option>
+                            <option value="3">高</option>
+                        </select>
+                    </div>
+                    <div class="form-field" id="todoGroupField">
+                        <label for="todoGroup">所属小组</label>
+                        <select id="todoGroup" class="input">
+                            <option value="">个人待办</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="weatherReminderGroup" class="stack-form hidden">
+                    <div class="form-field">
+                        <label for="todoWeatherLocation">天气位置</label>
+                        <input id="todoWeatherLocation" class="input" type="text" placeholder="例如：高新区 / 北京 / 510107">
+                    </div>
+                    <label class="switch-row">
+                        <input id="todoWeatherRainEnabled" type="checkbox">
+                        <span>下雨时提醒</span>
+                    </label>
+                    <div id="weatherRainIntervalGroup" class="form-field hidden">
+                        <label for="todoWeatherRainCheckInterval">降雨检查间隔（分钟）</label>
+                        <input id="todoWeatherRainCheckInterval" class="input" type="number" min="1" value="120">
+                    </div>
+                </div>
+
+                <label id="todoRepeatToggleGroup" class="switch-row">
+                    <input id="todoIsRepeated" type="checkbox">
+                    <span>循环提醒</span>
+                </label>
+
+                <div id="repeatModeGroup" class="form-field hidden">
+                    <label for="todoRepeatMode">循环模式</label>
+                    <select id="todoRepeatMode" class="input">
+                        <option value="Daily">每天</option>
+                        <option value="Weekly">每周</option>
+                        <option value="Monthly">每月</option>
+                        <option value="CustomInterval" selected>自定义间隔</option>
+                    </select>
+                </div>
+
+                <div id="repeatIntervalGroup" class="form-field hidden">
+                    <label for="todoRepeatInterval">自定义间隔（分钟）</label>
+                    <input id="todoRepeatInterval" class="input" type="number" min="1" value="60">
+                </div>
+
+                <label id="repeatRandomGroup" class="switch-row hidden">
+                    <input id="todoRandomReminder" type="checkbox">
+                    <span>随机提醒</span>
+                </label>
+
+                <div id="repeatRandomRangeGroup" class="form-grid hidden">
+                    <div class="form-field">
+                        <label for="todoRandomMinMinutes">最小分钟</label>
+                        <input id="todoRandomMinMinutes" class="input" type="number" min="0" value="0">
+                    </div>
+                    <div class="form-field">
+                        <label for="todoRandomMaxMinutes">最大分钟</label>
+                        <input id="todoRandomMaxMinutes" class="input" type="number" min="1" value="60">
+                    </div>
+                </div>
+
+                <div id="repeatWeekDaysGroup" class="form-field hidden">
+                    <label>每周重复日</label>
+                    <div class="checkbox-grid">
+                        <label><input id="repeatMonday" type="checkbox">周一</label>
+                        <label><input id="repeatTuesday" type="checkbox">周二</label>
+                        <label><input id="repeatWednesday" type="checkbox">周三</label>
+                        <label><input id="repeatThursday" type="checkbox">周四</label>
+                        <label><input id="repeatFriday" type="checkbox">周五</label>
+                        <label><input id="repeatSaturday" type="checkbox">周六</label>
+                        <label><input id="repeatSunday" type="checkbox">周日</label>
+                    </div>
+                </div>
+
+                <div id="repeatMonthDayGroup" class="form-field hidden">
+                    <label for="todoRepeatMonthDay">每月日期</label>
+                    <select id="todoRepeatMonthDay" class="input"></select>
+                </div>
+
+                <div class="action-row justify-end">
+                    <button type="button" class="btn btn-secondary" data-close-modal="todoModal">取消</button>
+                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="groupModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-head">
+                <h3 id="groupModalTitle">创建小组</h3>
+                <button type="button" class="modal-close" data-close-modal="groupModal">&times;</button>
+            </div>
+            <form id="groupForm" class="stack-form">
+                <input id="groupId" type="hidden">
+                <div class="form-field">
+                    <label for="groupName">小组名称</label>
+                    <input id="groupName" class="input" type="text" maxlength="100" required>
+                </div>
+                <div class="form-field">
+                    <label for="groupDescription">描述</label>
+                    <textarea id="groupDescription" class="input textarea" rows="3" maxlength="500"></textarea>
+                </div>
+                <div class="action-row justify-end">
+                    <button type="button" class="btn btn-secondary" data-close-modal="groupModal">取消</button>
+                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="noteModal" class="modal">
+        <div class="modal-dialog modal-large">
+            <div class="modal-head">
+                <h3 id="noteModalTitle">新建便签</h3>
+                <button type="button" class="modal-close" data-close-modal="noteModal">&times;</button>
+            </div>
+            <form id="noteForm" class="stack-form">
+                <input id="noteId" type="hidden">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="noteTitle">标题</label>
+                        <input id="noteTitle" class="input" type="text" maxlength="200">
+                    </div>
+                    <div class="form-field">
+                        <label for="noteDate">日期</label>
+                        <input id="noteDate" class="input" type="date">
+                    </div>
+                </div>
+                <div class="editor-toolbar" data-editor-target="noteEditor">
+                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="bold"><i class="fas fa-bold"></i></button>
+                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="italic"><i class="fas fa-italic"></i></button>
+                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+                    <button type="button" class="btn btn-ghost btn-icon" data-editor-command="formatBlock" data-editor-value="blockquote"><i class="fas fa-quote-right"></i></button>
+                    <button id="noteUploadImageBtn" type="button" class="btn btn-ghost">上传图片</button>
+                    <input id="noteImageInput" type="file" accept="image/*" class="hidden">
+                </div>
+                <div id="noteEditor" class="rich-editor" contenteditable="true" data-placeholder="输入便签内容，支持基础富文本与图片"></div>
+                <div class="action-row justify-end">
+                    <button type="button" class="btn btn-secondary" data-close-modal="noteModal">取消</button>
+                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="groupMembersModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-head">
+                <h3 id="groupMembersTitle">小组成员</h3>
+                <button type="button" class="modal-close" data-close-modal="groupMembersModal">&times;</button>
+            </div>
+            <div id="groupMembersContent" class="stack-list"></div>
+        </div>
+    </div>
+
+    <div id="channelModal" class="modal modal-sheet channel-modal-shell">
+        <div class="modal-dialog modal-large channel-modal-dialog">
+            <div class="sheet-handle channel-modal-handle" aria-hidden="true"></div>
+            <div class="modal-head">
+                <h3 id="channelModalTitle">渠道设置</h3>
+                <button type="button" class="modal-close" data-close-modal="channelModal">&times;</button>
+            </div>
+            <form id="channelForm" class="stack-form">
+                <input id="channelIndex" type="hidden" value="-1">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="channelType">渠道类型</label>
+                        <select id="channelType" class="input"></select>
+                    </div>
+                    <label class="switch-row">
+                        <input id="channelEnabled" type="checkbox">
+                        <span>启用渠道</span>
+                    </label>
+                </div>
+                <div id="channelFields" class="stack-form"></div>
+                <div class="action-row justify-end">
+                    <button type="button" class="btn btn-secondary" data-close-modal="channelModal">取消</button>
+                    <button type="submit" class="btn btn-primary"><span class="btn-media"><img src="assets/images/shell/save.png" alt=""></span><span>保存渠道</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="communityDetailModal" class="modal">
+        <div class="modal-dialog modal-large">
+            <div class="modal-head">
+                <h3 id="communityDetailTitle">帖子详情</h3>
+                <button type="button" class="modal-close" data-close-modal="communityDetailModal">&times;</button>
+            </div>
+            <div id="communityDetailContent" class="stack-form"></div>
+        </div>
+    </div>
+
+    <div id="communityPublishPrivilegeModal" class="modal modal-sheet" role="dialog" aria-modal="true" aria-labelledby="communityPublishPrivilegeTitle">
+        <div class="modal-dialog community-privilege-sheet">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="modal-head">
+                <div>
+                    <span id="communityPublishPrivilegeEyebrow" class="sheet-eyebrow">社区发帖</span>
+                    <h3 id="communityPublishPrivilegeTitle">Pro用户专享发帖特权</h3>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="communityPublishPrivilegeModal">&times;</button>
+            </div>
+            <p id="communityPublishPrivilegeCopy" class="sheet-copy">Pro用户专享发帖特权。升级为 Pro 后即可在社区发布帖子、分享经验与进展。当前仍可继续浏览帖子流和互动内容。</p>
+            <div class="action-row">
+                <button id="communityPublishPrivilegePlansBtn" type="button" class="btn btn-primary">查看 Pro 套餐</button>
+                <button type="button" class="btn btn-ghost" data-close-modal="communityPublishPrivilegeModal">稍后再说</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reminderPopup" class="reminder-popup hidden">
+        <div class="reminder-icon"><i class="fas fa-bell"></i></div>
+        <h3>提醒时间到了</h3>
+        <h4 id="reminderTitle">提醒</h4>
+        <p id="reminderDescription">-</p>
+        <div class="action-row center">
+            <button id="markReminderCompleteBtn" type="button" class="btn btn-primary"><i class="fas fa-check"></i>完成</button>
+            <button id="snoozeReminderBtn" type="button" class="btn btn-secondary"><i class="fas fa-clock"></i>稍后提醒</button>
+            <button id="dismissReminderBtn" type="button" class="btn btn-ghost"><i class="fas fa-xmark"></i>关闭</button>
+        </div>
+    </div>
+<div id="notification" class="notification"></div>
+
+    <script src="portal.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
