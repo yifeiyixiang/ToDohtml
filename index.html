@@ -467,8 +467,8 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="languageToggle" type="button" onclick="toggleLanguage()" class="language-toggle" aria-label="切换语言" title="切换语言" data-i18n-aria-label="切换语言" data-i18n-title="切换语言">
-                        <span class="language-toggle__option is-active" data-language-option="zh">中</span>
-                        <span class="language-toggle__option" data-language-option="en">EN</span>
+                        <span class="language-toggle__option is-active" data-language-option="zh">中文</span>
+                        <span class="language-toggle__option" data-language-option="en">English</span>
                     </button>
                     <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换深色模式" data-i18n-aria-label="切换深色模式">
                         <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
@@ -1149,7 +1149,35 @@ const result = await response.json();</code></pre>
 
     <script>
         const LANGUAGE_STORAGE_KEY = 'dingban-language';
-        let currentLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'en' ? 'en' : 'zh';
+
+        function normalizeLanguage(language) {
+            if (typeof language !== 'string') {
+                return null;
+            }
+
+            const normalized = language.trim().toLowerCase().replace(/_/g, '-');
+            if (normalized === 'en' || normalized === 'en-us' || normalized.startsWith('en-')) {
+                return 'en';
+            }
+
+            if (normalized === 'zh' || normalized === 'zh-cn' || normalized === 'zh-hans' || normalized.startsWith('zh-')) {
+                return 'zh';
+            }
+
+            return null;
+        }
+
+        function getInitialLanguage() {
+            const urlLanguage = normalizeLanguage(new URLSearchParams(window.location.search).get('lang'));
+            if (urlLanguage) {
+                localStorage.setItem(LANGUAGE_STORAGE_KEY, urlLanguage);
+                return urlLanguage;
+            }
+
+            return normalizeLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY)) || 'zh';
+        }
+
+        let currentLanguage = getInitialLanguage();
 
         const translations = {
             zh: {
@@ -1454,10 +1482,19 @@ const result = await response.json();`,
             lucide.createIcons();
         }
 
-        function toggleLanguage() {
-            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+        function setLanguage(language) {
+            const normalizedLanguage = normalizeLanguage(language);
+            if (!normalizedLanguage || normalizedLanguage === currentLanguage) {
+                return;
+            }
+
+            currentLanguage = normalizedLanguage;
             localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
             applyTranslations();
+        }
+
+        function toggleLanguage() {
+            setLanguage(currentLanguage === 'zh' ? 'en' : 'zh');
         }
 
         function toggleDarkMode() {
@@ -1590,6 +1627,7 @@ const result = await response.json();`,
         }
 
         window.toggleLanguage = toggleLanguage;
+        window.setLanguage = setLanguage;
         window.toggleDarkMode = toggleDarkMode;
         window.translateText = t;
         window.getCurrentLanguage = () => currentLanguage;

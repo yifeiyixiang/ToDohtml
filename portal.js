@@ -1,4 +1,4 @@
-// const DEFAULT_SERVER_ORIGIN = "http://starx.cc:8000";
+// const DEFAULT_SERVER_ORIGIN = "http://192.168.1.104:8000";
 const DEFAULT_SERVER_ORIGIN = "";
 const WEATHER_API_URL = "https://uapis.cn/api/v1/misc/weather";
 const WEATHER_API_TOKEN = "uapi-vq_e4ztai9A6zCs0g0rBeMgnbjdCI1eawDFfdusO";
@@ -1285,7 +1285,7 @@ const state = {
     currentReminderTodo: null,
     ui: {
         mobileNavOpen: false,
-        language: loadString(UI_LANGUAGE_STORAGE_KEY, SUPPORTED_UI_LANGUAGES.zh)
+        language: resolveInitialLanguage()
     },
     todo: {
         items: [],
@@ -1415,8 +1415,43 @@ function qs(id) {
     return document.getElementById(id);
 }
 
+function tryResolveLanguageOverride(language) {
+    const normalized = String(language || "").trim().replace(/_/g, "-").toLowerCase();
+    if (!normalized) {
+        return "";
+    }
+
+    if (normalized.startsWith("en")) {
+        return SUPPORTED_UI_LANGUAGES.en;
+    }
+
+    if (normalized.startsWith("zh")) {
+        return SUPPORTED_UI_LANGUAGES.zh;
+    }
+
+    return "";
+}
+
+function getLanguageFromQuery() {
+    try {
+        return tryResolveLanguageOverride(new URLSearchParams(window.location.search).get("lang"));
+    } catch (error) {
+        return "";
+    }
+}
+
+function resolveInitialLanguage() {
+    const languageFromQuery = getLanguageFromQuery();
+    if (languageFromQuery) {
+        saveString(UI_LANGUAGE_STORAGE_KEY, languageFromQuery);
+        return languageFromQuery;
+    }
+
+    return normalizeLanguage(loadString(UI_LANGUAGE_STORAGE_KEY, SUPPORTED_UI_LANGUAGES.zh));
+}
+
 function normalizeLanguage(language) {
-    return /^en/i.test(String(language || "").trim()) ? SUPPORTED_UI_LANGUAGES.en : SUPPORTED_UI_LANGUAGES.zh;
+    return tryResolveLanguageOverride(language) || SUPPORTED_UI_LANGUAGES.zh;
 }
 
 function isEnglishLanguage(language = state.ui.language) {
@@ -2529,6 +2564,24 @@ function formatDateTimeLocalValue(value) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+function getLocalTimeZoneId() {
+    try {
+        const resolved = Intl.DateTimeFormat().resolvedOptions();
+        return resolved && resolved.timeZone ? resolved.timeZone : "Asia/Shanghai";
+    } catch (error) {
+        return "Asia/Shanghai";
+    }
+}
+
+function formatDateParamValue(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 function formatDuration(seconds) {
     const total = Math.max(0, Number(seconds || 0));
     const minutes = Math.floor(total / 60);
@@ -2966,7 +3019,10 @@ async function snoozeReminder() {
         const remindTime = new Date(Date.now() + 10 * 60 * 1000);
         await apiRequest(`Todo/${state.currentReminderTodo.todoId}`, {
             method: "PUT",
-            body: { remindTime: remindTime.toISOString() }
+            body: {
+                remindTime: formatDateTimeLocalValue(remindTime),
+                timeZoneId: getLocalTimeZoneId()
+            }
         });
         showNotification("已延后 10 分钟提醒", "success");
         dismissReminder();
@@ -3226,6 +3282,7 @@ function buildTodoQuery(includePage = true) {
     } else if (state.todo.filters.groupId) {
         params.set("groupId", state.todo.filters.groupId);
     }
+    params.set("timeZoneId", getLocalTimeZoneId());
     return params;
 }
 
@@ -3322,8 +3379,8 @@ async function loadTodoCalendar() {
         monthEnd.setMonth(monthEnd.getMonth() + 1);
         monthEnd.setDate(0);
         const params = buildTodoQuery(false);
-        params.set("startDate", monthStart.toISOString());
-        params.set("endDate", monthEnd.toISOString());
+        params.set("startDate", formatDateParamValue(monthStart));
+        params.set("endDate", formatDateParamValue(monthEnd));
         const payload = await apiRequest(`Todo/calendar-summary?${params.toString()}`);
         renderTodoCalendar(unwrapCollection(payload?.days));
         qs("calendarMonthLabel").textContent = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`;
@@ -3429,7 +3486,7 @@ function openTodoModal(mode, todo) {
     qs("todoModalTitle").textContent = mode === "weather" ? (todo ? "编辑天气提醒" : "新增天气提醒") : (todo ? "编辑待办" : "新增待办");
     qs("todoTitle").value = todo?.title || (mode === "weather" ? getLocalizedWeatherTodoTitle() : "");
     qs("todoDescription").value = todo?.description || "";
-    qs("todoRemindTime").value = formatDateTimeLocalValue(todo?.remindTime || new Date(Date.now() + 2 * 60 * 60 * 1000));
+    qs("todoRemindTime").value = formatDateTimeLocalValue(todo?.remindTime || new Date(Date.now() + 2 * 60 * 1000));
     qs("todoPriority").value = todo?.priority === "High" ? "3" : todo?.priority === "Low" ? "1" : "2";
     qs("todoGroup").value = todo?.groupId || "";
     qs("todoIsRepeated").checked = !!todo?.isRepeated;
@@ -3468,6 +3525,7 @@ async function handleSaveTodo(event) {
         title: weatherMode ? getLocalizedWeatherTodoTitle() : qs("todoTitle").value.trim(),
         description: weatherMode ? null : (qs("todoDescription").value.trim() || null),
         remindTime: qs("todoRemindTime").value || null,
+        timeZoneId: getLocalTimeZoneId(),
         groupId: weatherMode ? null : (qs("todoGroup").value || null),
         priority: weatherMode ? 2 : Number(qs("todoPriority").value),
         isRepeated,
